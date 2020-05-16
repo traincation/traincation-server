@@ -20,6 +20,11 @@ dependencies {
     implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-serialization-jvm:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
+
+    implementation("org.jetbrains.exposed", "exposed-core", "0.24.1")
+    implementation("org.jetbrains.exposed", "exposed-dao", "0.24.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.24.1")
+    implementation("org.postgresql:postgresql:42.2.2")
 }
 
 tasks {
