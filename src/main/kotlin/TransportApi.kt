@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 
 private val regex = Regex("([0-9]{2})d([0-9]{2}):([0-9]{2}):([0-9]{2})")
 
-suspend fun downloadConnections() {
+suspend fun downloadConnections(from: String, to: String): ConnectionResult {
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -20,8 +20,8 @@ suspend fun downloadConnections() {
 
     val response: ConnectionsResponse = client.get("http://transport.opendata.ch/v1/connections") {
         url {
-            parameters["from"] = "Lausanne"
-            parameters["to"] = "Genève"
+            parameters["from"] = from
+            parameters["to"] = to
             parameters["date"] = "2020-07-01"
             parameters["time"] = "07:00"
             parameters["limit"] = "10"
@@ -49,4 +49,15 @@ suspend fun downloadConnections() {
     print(allTimes)
 
     client.close()
+
+    return ConnectionResult(response.from.id, response.to.id, allTimes.first(), allTimes.median())
 }
+
+data class ConnectionResult(
+    val fromId: String,
+    val toId: String,
+    val minDuration: Int,
+    val medianDuration: Int
+)
+
+private fun <T : Comparable<T>> List<T>.median() = this.sorted().let { it[it.size / 2] }

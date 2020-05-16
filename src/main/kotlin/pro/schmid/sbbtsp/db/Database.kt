@@ -11,8 +11,8 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object Connections : IntIdTable() {
-    val fromStation = integer("fromStation")
-    val toStation = integer("toStation")
+    val fromStation = varchar("fromStation", 9)
+    val toStation = varchar("toStation", 9)
     val minDuration = integer("minDuration")
     val medianDuration = integer("medianDuration")
 
@@ -45,7 +45,7 @@ object Database {
         }
     }
 
-    suspend fun create(from: Int, to: Int, min: Int, median: Int) {
+    fun create(from: String, to: String, min: Int, median: Int) {
         transaction {
             Connection.new {
                 fromStation = from
