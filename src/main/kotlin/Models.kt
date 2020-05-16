@@ -2,23 +2,47 @@
 import kotlinx.serialization.*
 
 @Serializable
-data class Stationboard (
-    val station: Ation,
-    val stationboard: List<StationboardElement>
+data class ConnectionsResponse (
+    val connections: List<Connection>,
+    val from: Location,
+    val to: Location,
+    val stations: Stations
 )
 
 @Serializable
-data class Ation (
+data class Connection (
+    val from: Checkpoint,
+    val to: Checkpoint,
+    val duration: String,
+    val transfers: Long,
+    val products: List<String>,
+    val sections: List<Section>
+)
+
+@Serializable
+data class Checkpoint (
+    val station: Location,
+    val arrival: String? = null,
+    val arrivalTimestamp: Long? = null,
+    val departure: String? = null,
+    val departureTimestamp: Long? = null,
+    val delay: Int? = null,
+    val platform: String? = null,
+    val location: Location
+)
+
+@Serializable
+data class Location (
     val id: String,
-    val name: String? = null,
-    val coordinate: Coordinate
+    val name: String,
+    val coordinate: Coordinates
 )
 
 @Serializable
-data class Coordinate (
+data class Coordinates (
     val type: Type,
-    val x: Double? = null,
-    val y: Double? = null
+    val x: Double,
+    val y: Double
 )
 
 @Serializable(with = Type.Companion::class)
@@ -40,81 +64,24 @@ enum class Type(val value: String) {
 }
 
 @Serializable
-data class StationboardElement (
-    val stop: Stop,
+data class Section (
+    val journey: Journey,
+    val departure: Checkpoint,
+    val arrival: Checkpoint
+)
+
+@Serializable
+data class Journey (
     val name: String,
-    val category: Category,
+    val category: String,
     val number: String,
-    val operator: Operator,
+    val operator: String,
     val to: String,
-    val passList: List<PassList>
-)
-
-@Serializable(with = Category.Companion::class)
-enum class Category(val value: String) {
-    IR("IR"),
-    Re("RE"),
-    S("S");
-
-    companion object : KSerializer<Category> {
-        override val descriptor: SerialDescriptor get() {
-            return PrimitiveDescriptor("quicktype.Category", PrimitiveKind.STRING)
-        }
-        override fun deserialize(decoder: Decoder): Category = when (val value = decoder.decodeString()) {
-            "IR" -> IR
-            "RE" -> Re
-            "S"  -> S
-            else -> throw IllegalArgumentException("Category could not parse: $value")
-        }
-        override fun serialize(encoder: Encoder, value: Category) {
-            return encoder.encodeString(value.value)
-        }
-    }
-}
-
-@Serializable(with = Operator.Companion::class)
-enum class Operator(val value: String) {
-    AVAWsb("AVA-wsb"),
-    Sbb("SBB");
-
-    companion object : KSerializer<Operator> {
-        override val descriptor: SerialDescriptor get() {
-            return PrimitiveDescriptor("quicktype.Operator", PrimitiveKind.STRING)
-        }
-        override fun deserialize(decoder: Decoder): Operator = when (val value = decoder.decodeString()) {
-            "AVA-wsb" -> AVAWsb
-            "SBB"     -> Sbb
-            else      -> throw IllegalArgumentException("Operator could not parse: $value")
-        }
-        override fun serialize(encoder: Encoder, value: Operator) {
-            return encoder.encodeString(value.value)
-        }
-    }
-}
-
-@Serializable
-data class PassList (
-    val station: Ation,
-    val arrival: String? = null,
-    val arrivalTimestamp: Long? = null,
-    val departure: String? = null,
-    val departureTimestamp: Long? = null,
-    val platform: String? = null,
-    val prognosis: Prognosis,
-    val location: Ation
+    val passList: List<Checkpoint>
 )
 
 @Serializable
-data class Prognosis(
-    val platform: String? = null
-)
-
-@Serializable
-data class Stop (
-    val station: Ation,
-    val departure: String,
-    val departureTimestamp: Long,
-    val platform: String,
-    val prognosis: Prognosis,
-    val location: Ation
+data class Stations (
+    val from: List<Location>,
+    val to: List<Location>
 )

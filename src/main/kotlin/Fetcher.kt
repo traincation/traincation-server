@@ -18,7 +18,7 @@ suspend fun main() {
     }
 
 
-    val response: Stationboard = client.get("http://transport.opendata.ch/v1/stationboard?station=Aarau&limit=10")
+    val response: ConnectionsResponse = client.get("http://transport.opendata.ch/v1/connections?from=Lausanne&to=Gen%C3%A8ve&date=2020-07-01&time=07:00")
     println(response)
 
     client.close()
