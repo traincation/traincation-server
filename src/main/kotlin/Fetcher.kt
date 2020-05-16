@@ -17,8 +17,14 @@ suspend fun main() {
         }
     }
 
-
-    val response: ConnectionsResponse = client.get("http://transport.opendata.ch/v1/connections?from=Lausanne&to=Gen%C3%A8ve&date=2020-07-01&time=07:00")
+    val response: ConnectionsResponse = client.get("http://transport.opendata.ch/v1/connections") {
+        url {
+            parameters["from"] = "Lausanne"
+            parameters["to"] = "Genève"
+            parameters["date"] = "2020-07-01"
+            parameters["time"] = "07:00"
+        }
+    }
     println(response)
 
     client.close()
