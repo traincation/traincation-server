@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+
+    implementation("io.ktor:ktor-client-cio:1.3.1")
 }
 
 tasks {
