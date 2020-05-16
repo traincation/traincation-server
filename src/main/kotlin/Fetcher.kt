@@ -3,7 +3,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.get
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 suspend fun main() {
@@ -19,11 +18,8 @@ suspend fun main() {
     }
 
 
-    val response: User = client.get("http://www.mocky.io/v2/5ebfc92c32000076730c34f1")
+    val response: Stationboard = client.get("http://transport.opendata.ch/v1/stationboard?station=Aarau&limit=10")
     println(response)
 
     client.close()
 }
-
-@Serializable
-data class User(val id: Int)
