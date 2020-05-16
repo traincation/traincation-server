@@ -23,6 +23,7 @@ suspend fun main() {
             parameters["to"] = "Genève"
             parameters["date"] = "2020-07-01"
             parameters["time"] = "07:00"
+            parameters["limit"] = "10"
         }
     }
     println(response)
