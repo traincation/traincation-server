@@ -45,8 +45,17 @@ object Database {
         }
     }
 
-    fun create(from: String, to: String, min: Int, median: Int) {
-        transaction {
+    fun get(from: String, to: String): Connection? {
+        return transaction {
+            Connection.find {
+                Connections.fromStation eq from
+                Connections.toStation eq to
+            }.firstOrNull()
+        }
+    }
+
+    fun create(from: String, to: String, min: Int, median: Int): Connection {
+        return transaction {
             Connection.new {
                 fromStation = from
                 toStation = to

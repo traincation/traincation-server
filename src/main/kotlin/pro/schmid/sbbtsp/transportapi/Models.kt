@@ -1,8 +1,9 @@
+package pro.schmid.sbbtsp.transportapi
 
 import kotlinx.serialization.*
 
 @Serializable
-data class ConnectionsResponse (
+data class ConnectionsResponse(
     val connections: List<Connection>,
     val from: Location,
     val to: Location,
@@ -10,7 +11,7 @@ data class ConnectionsResponse (
 )
 
 @Serializable
-data class Connection (
+data class Connection(
     val from: Checkpoint,
     val to: Checkpoint,
     val duration: String,
@@ -20,7 +21,7 @@ data class Connection (
 )
 
 @Serializable
-data class Checkpoint (
+data class Checkpoint(
     val station: Location,
     val arrival: String? = null,
     val arrivalTimestamp: Long? = null,
@@ -32,14 +33,14 @@ data class Checkpoint (
 )
 
 @Serializable
-data class Location (
+data class Location(
     val id: String,
     val name: String,
     val coordinate: Coordinates
 )
 
 @Serializable
-data class Coordinates (
+data class Coordinates(
     val type: Type,
     val x: Double,
     val y: Double
@@ -50,13 +51,16 @@ enum class Type(val value: String) {
     Wgs84("WGS84");
 
     companion object : KSerializer<Type> {
-        override val descriptor: SerialDescriptor get() {
-            return PrimitiveDescriptor("quicktype.Type", PrimitiveKind.STRING)
-        }
+        override val descriptor: SerialDescriptor
+            get() {
+                return PrimitiveDescriptor("quicktype.Type", PrimitiveKind.STRING)
+            }
+
         override fun deserialize(decoder: Decoder): Type = when (val value = decoder.decodeString()) {
             "WGS84" -> Wgs84
-            else    -> throw IllegalArgumentException("Type could not parse: $value")
+            else -> throw IllegalArgumentException("Type could not parse: $value")
         }
+
         override fun serialize(encoder: Encoder, value: Type) {
             return encoder.encodeString(value.value)
         }
@@ -64,14 +68,14 @@ enum class Type(val value: String) {
 }
 
 @Serializable
-data class Section (
+data class Section(
     val journey: Journey,
     val departure: Checkpoint,
     val arrival: Checkpoint
 )
 
 @Serializable
-data class Journey (
+data class Journey(
     val name: String,
     val category: String,
     val number: String,
@@ -81,7 +85,7 @@ data class Journey (
 )
 
 @Serializable
-data class Stations (
+data class Stations(
     val from: List<Location>,
     val to: List<Location>
 )

@@ -1,3 +1,5 @@
+package pro.schmid.sbbtsp.transportapi
+
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JsonFeature
@@ -50,7 +52,12 @@ suspend fun downloadConnections(from: String, to: String): ConnectionResult {
 
     client.close()
 
-    return ConnectionResult(response.from.id, response.to.id, allTimes.first(), allTimes.median())
+    return ConnectionResult(
+        response.from.id,
+        response.to.id,
+        allTimes.first(),
+        allTimes.median()
+    )
 }
 
 data class ConnectionResult(
