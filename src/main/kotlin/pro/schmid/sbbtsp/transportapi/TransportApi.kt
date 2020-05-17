@@ -48,8 +48,6 @@ suspend fun downloadConnections(from: String, to: String): ConnectionResult {
         }
         .sorted()
 
-    print(allTimes)
-
     client.close()
 
     return ConnectionResult(
