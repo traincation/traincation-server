@@ -19,15 +19,13 @@ suspend fun main() {
     val repository = ConnectionsRepository()
 
     val allConnections = coroutineScope {
-        val arrayOfArray = Array(allPoints.size) { LongArray(allPoints.size) }
+        val arrayOfArray = Array(allPoints.size) { LongArray(allPoints.size) { 0 } }
 
         for (from in arrayOfArray.indices) {
             for (to in arrayOfArray.indices) {
+                if (from == to) continue
+
                 launch {
-                    if (from == to) {
-                        arrayOfArray[from][to] = 0
-                        return@launch
-                    }
                     val fromId = allPoints[from].id
                     val toId = allPoints[to].id
                     val connection = repository.fetch(fromId, toId)
@@ -48,6 +46,8 @@ suspend fun main() {
         val to = allPoints[it.to]
         println("From ${from.name} to ${to.name}: ${it.distance} minutes")
     }
+    val totalTime = route.map { it.distance }.sum()
+    println("Total time: $totalTime minutes")
 }
 
 private data class Station(

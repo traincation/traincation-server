@@ -32,10 +32,10 @@ class Solver {
         return createLegs(routing, manager, solution)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun createLegs(
         routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment
-    ): List<Leg> {
-        val route = mutableListOf<Leg>()
+    ): List<Leg> = buildList {
         var index = routing.start(0)
         while (!routing.isEnd(index)) {
             val fromId = manager.indexToNode(index)
@@ -43,10 +43,8 @@ class Solver {
             index = solution.value(routing.nextVar(index))
             val toId = manager.indexToNode(index)
             val distance = routing.getArcCostForVehicle(previousIndex, index, 0)
-            route.add(Leg(fromId, toId, distance))
+            add(Leg(fromId, toId, distance))
         }
-
-        return route.toList()
     }
 }
 
