@@ -10,7 +10,7 @@ class Solver {
 
     private val logger = Logger.getLogger(Solver::class.java.name)
 
-    fun solve(data: DataModel) {
+    fun solve(data: DataModel): List<Leg> {
         val manager = RoutingIndexManager(data.distanceMatrix.size, data.vehicleNumber, data.depot)
         val routing = RoutingModel(manager)
 
@@ -37,13 +37,15 @@ class Solver {
             manager,
             solution
         )
+
+        return createLegs(routing, manager, solution)
     }
 
     private fun printSolution(
         routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment
     ) {
         // Solution cost.
-        logger.info("Objective: " + solution.objectiveValue() + "miles")
+        logger.info("Objective: " + solution.objectiveValue() + " minutes")
         // Inspect solution.
         logger.info("Route:")
         var routeDistance: Long = 0
@@ -57,7 +59,25 @@ class Solver {
         }
         route += manager.indexToNode(routing.end(0))
         logger.info(route)
-        logger.info("Route distance: " + routeDistance + "miles")
+        logger.info("Route distance: " + routeDistance + " minutes")
+    }
+
+
+    private fun createLegs(
+        routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment
+    ): List<Leg> {
+        val route = mutableListOf<Leg>()
+        var index = routing.start(0)
+        while (!routing.isEnd(index)) {
+            val fromId = manager.indexToNode(index)
+            val previousIndex = index
+            index = solution.value(routing.nextVar(index))
+            val toId = manager.indexToNode(index)
+            val distance = routing.getArcCostForVehicle(previousIndex, index, 0)
+            route.add(Leg(fromId, toId, distance))
+        }
+
+        return route.toList()
     }
 }
 
@@ -65,4 +85,10 @@ data class DataModel(
     val distanceMatrix: Array<LongArray>,
     val vehicleNumber: Int = 1,
     val depot: Int = 0
+)
+
+data class Leg(
+    val from: Int,
+    val to: Int,
+    val distance: Long
 )

@@ -42,5 +42,7 @@ suspend fun main() {
 
     val data = DataModel(allConnections)
     val solver = Solver()
-    solver.solve(data)
+    val route = solver.solve(data)
+
+    println(route)
 }
