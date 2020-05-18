@@ -9,9 +9,8 @@ import pro.schmid.sbbtsp.solver.Solver
 suspend fun main() {
     val allPoints = listOf(
         Station("Yverdon", "8504200"),
-        Station("Lausanne", "8501120"),
-        Station("Lugano", "8505300"),
-        Station("Genève", "8501008"),
+        Station("Stoosbahn", "8577453"),
+        Station("St. Moritz", "8509253"),
         Station("Bâle", "8500010"),
         Station("Lucerne", "8505000")
     )
