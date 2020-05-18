@@ -1,14 +1,11 @@
 package pro.schmid.sbbtsp.solver
 
 import com.google.ortools.constraintsolver.*
-import java.util.logging.Logger
 
 class Solver {
     init {
         System.loadLibrary("jniortools")
     }
-
-    private val logger = Logger.getLogger(Solver::class.java.name)
 
     fun solve(data: DataModel): List<Leg> {
         val manager = RoutingIndexManager(data.distanceMatrix.size, data.vehicleNumber, data.depot)
@@ -32,36 +29,8 @@ class Solver {
 
         val solution = routing.solveWithParameters(searchParameters)
 
-        printSolution(
-            routing,
-            manager,
-            solution
-        )
-
         return createLegs(routing, manager, solution)
     }
-
-    private fun printSolution(
-        routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment
-    ) {
-        // Solution cost.
-        logger.info("Objective: " + solution.objectiveValue() + " minutes")
-        // Inspect solution.
-        logger.info("Route:")
-        var routeDistance: Long = 0
-        var route = ""
-        var index = routing.start(0)
-        while (!routing.isEnd(index)) {
-            route += manager.indexToNode(index).toString() + " -> "
-            val previousIndex = index
-            index = solution.value(routing.nextVar(index))
-            routeDistance += routing.getArcCostForVehicle(previousIndex, index, 0)
-        }
-        route += manager.indexToNode(routing.end(0))
-        logger.info(route)
-        logger.info("Route distance: " + routeDistance + " minutes")
-    }
-
 
     private fun createLegs(
         routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment

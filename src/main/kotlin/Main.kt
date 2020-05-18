@@ -7,15 +7,14 @@ import pro.schmid.sbbtsp.solver.DataModel
 import pro.schmid.sbbtsp.solver.Solver
 
 suspend fun main() {
-    val yverdon = "8504200"
-    val lausanne = "8501120"
-    val lugano = "8505300"
-    val geneve = "8501008"
-    val basel = "8500010"
-    val lucerne = "8505000"
-
-    val allPoints = listOf(yverdon, lausanne, lugano, geneve, basel, lucerne)
-    val stationsArray = allPoints.toTypedArray()
+    val allPoints = listOf(
+        Station("Yverdon", "8504200"),
+        Station("Lausanne", "8501120"),
+        Station("Lugano", "8505300"),
+        Station("Genève", "8501008"),
+        Station("Bâle", "8500010"),
+        Station("Lucerne", "8505000")
+    )
 
     val repository = ConnectionsRepository()
 
@@ -29,8 +28,8 @@ suspend fun main() {
                         arrayOfArray[from][to] = 0
                         return@launch
                     }
-                    val fromId = stationsArray[from]
-                    val toId = stationsArray[to]
+                    val fromId = allPoints[from].id
+                    val toId = allPoints[to].id
                     val connection = repository.fetch(fromId, toId)
                     arrayOfArray[from][to] = connection.minDuration.toLong()
                 }
@@ -44,5 +43,14 @@ suspend fun main() {
     val solver = Solver()
     val route = solver.solve(data)
 
-    println(route)
+    route.forEach {
+        val from = allPoints[it.from]
+        val to = allPoints[it.to]
+        println("From ${from.name} to ${to.name}: ${it.distance} minutes")
+    }
 }
+
+private data class Station(
+    val name: String,
+    val id: String
+)
