@@ -1,14 +1,43 @@
 import com.google.ortools.constraintsolver.*
 import java.util.logging.Logger
 
-/** Minimal TSP using distance matrix.  */
 object TspCities {
+    init {
+        System.loadLibrary("jniortools")
+    }
+
     private val logger = Logger.getLogger(TspCities::class.java.name)
 
-    // [END data_model]
-    // [START solution_printer]
-    /// @brief Print the solution.
-    fun printSolution(
+    @Throws(Exception::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val data = DataModel()
+
+        val manager = RoutingIndexManager(data.distanceMatrix.size, data.vehicleNumber, data.depot)
+        val routing = RoutingModel(manager)
+
+        val transitCallbackIndex =
+            routing.registerTransitCallback { fromIndex: Long, toIndex: Long ->
+                // Convert from routing variable Index to user NodeIndex.
+                val fromNode = manager.indexToNode(fromIndex)
+                val toNode = manager.indexToNode(toIndex)
+                data.distanceMatrix[fromNode][toNode]
+            }
+
+        routing.setArcCostEvaluatorOfAllVehicles(transitCallbackIndex)
+
+        val searchParameters =
+            main.defaultRoutingSearchParameters()
+                .toBuilder()
+                .setFirstSolutionStrategy(FirstSolutionStrategy.Value.PATH_CHEAPEST_ARC)
+                .build()
+
+        val solution = routing.solveWithParameters(searchParameters)
+
+        printSolution(routing, manager, solution)
+    }
+
+    private fun printSolution(
         routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment
     ) {
         // Solution cost.
@@ -29,62 +58,6 @@ object TspCities {
         logger.info("Route distance: " + routeDistance + "miles")
     }
 
-    // [END solution_printer]
-    @Throws(Exception::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        // Instantiate the data problem.
-        // [START data]
-        val data = DataModel()
-        // [END data]
-
-        // Create Routing Index Manager
-        // [START index_manager]
-        val manager = RoutingIndexManager(data.distanceMatrix.size, data.vehicleNumber, data.depot)
-        // [END index_manager]
-
-        // Create Routing Model.
-        // [START routing_model]
-        val routing = RoutingModel(manager)
-        // [END routing_model]
-
-        // Create and register a transit callback.
-        // [START transit_callback]
-        val transitCallbackIndex =
-            routing.registerTransitCallback { fromIndex: Long, toIndex: Long ->
-                // Convert from routing variable Index to user NodeIndex.
-                val fromNode = manager.indexToNode(fromIndex)
-                val toNode = manager.indexToNode(toIndex)
-                data.distanceMatrix[fromNode][toNode]
-            }
-        // [END transit_callback]
-
-        // Define cost of each arc.
-        // [START arc_cost]
-        routing.setArcCostEvaluatorOfAllVehicles(transitCallbackIndex)
-        // [END arc_cost]
-
-        // Setting first solution heuristic.
-        // [START parameters]
-        val searchParameters =
-            main.defaultRoutingSearchParameters()
-                .toBuilder()
-                .setFirstSolutionStrategy(FirstSolutionStrategy.Value.PATH_CHEAPEST_ARC)
-                .build()
-        // [END parameters]
-
-        // Solve the problem.
-        // [START solve]
-        val solution = routing.solveWithParameters(searchParameters)
-        // [END solve]
-
-        // Print solution on console.
-        // [START print_solution]
-        printSolution(routing, manager, solution)
-        // [END print_solution]
-    }
-
-    // [START data_model]
     internal class DataModel {
         val distanceMatrix = arrayOf(
             longArrayOf(0, 2451, 713, 1018, 1631, 1374, 2408, 213, 2571, 875, 1420, 2145, 1972),
@@ -103,9 +76,5 @@ object TspCities {
         )
         val vehicleNumber = 1
         val depot = 0
-    }
-
-    init {
-        System.loadLibrary("jniortools")
     }
 }
