@@ -14,10 +14,7 @@ data class ConnectionsResponse(
 data class Connection(
     val from: Checkpoint,
     val to: Checkpoint,
-    val duration: String,
-    val transfers: Long,
-    val products: List<String>,
-    val sections: List<Section>
+    val duration: String
 )
 
 @Serializable
@@ -26,10 +23,7 @@ data class Checkpoint(
     val arrival: String? = null,
     val arrivalTimestamp: Long? = null,
     val departure: String? = null,
-    val departureTimestamp: Long? = null,
-    val delay: Int? = null,
-    val platform: String? = null,
-    val location: Location
+    val departureTimestamp: Long? = null
 )
 
 @Serializable
@@ -66,23 +60,6 @@ enum class Type(val value: String) {
         }
     }
 }
-
-@Serializable
-data class Section(
-    val journey: Journey,
-    val departure: Checkpoint,
-    val arrival: Checkpoint
-)
-
-@Serializable
-data class Journey(
-    val name: String,
-    val category: String,
-    val number: String,
-    val operator: String,
-    val to: String,
-    val passList: List<Checkpoint>
-)
 
 @Serializable
 data class Stations(
