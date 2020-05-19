@@ -10,8 +10,11 @@ suspend fun main() {
     val allPoints = listOf(
         Station("Yverdon", "8504200"),
         Station("Stoosbahn", "8577453"),
-        Station("St. Moritz", "8509253"),
+        Station("Zernez", "8509262"),
+        Station("Grindelwald", "8505226"),
         Station("Bâle", "8500010"),
+        Station("Kandersteg", "8507475"),
+        Station("Zermatt", "8501689"),
         Station("Lucerne", "8505000")
     )
 
