@@ -1,9 +1,12 @@
 package pro.schmid.sbbtsp.db
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.postgresql.ds.PGPoolingDataSource
 import java.net.URI
 import java.time.Instant
 
@@ -15,18 +18,18 @@ class Database {
         val username: String = split[0]
         val password: String = split[1]
 
-
-        val pool = PGPoolingDataSource()// PGConnectionPoolDataSource()
-        pool.serverName = dbUri.host
-        pool.portNumber = dbUri.port
-        pool.databaseName = dbUri.path.substring(1)
-        pool.user = username
-        pool.password = password
-        if (dbUri.host != "localhost") {
-            pool.sslMode = "require"
+        val config = HikariConfig().apply {
+            driverClassName = "org.postgresql.Driver"
+            jdbcUrl = "jdbc:postgresql://${dbUri.host}:${dbUri.port}${dbUri.path}"
+            this.username = username
+            this.password = password
+            maximumPoolSize = 20
+            validate()
         }
 
-        Database.connect(pool)
+        val dataSource = HikariDataSource(config)
+
+        Database.connect(dataSource)
 
         transaction {
             addLogger(StdOutSqlLogger)
@@ -34,23 +37,23 @@ class Database {
         }
     }
 
-    fun get(from: String, to: String): Connection? {
-        return transaction {
-            Connection.find {
-                Connections.fromStation eq from and (Connections.toStation eq to)
-            }.firstOrNull()
-        }
+    suspend fun get(from: String, to: String): Connection? = dbquery {
+        Connection.find {
+            Connections.fromStation eq from and (Connections.toStation eq to)
+        }.firstOrNull()
     }
 
-    fun create(from: String, to: String, min: Int, median: Int): Connection {
-        return transaction {
-            Connection.new {
-                fromStation = from
-                toStation = to
-                minDuration = min
-                medianDuration = median
-                lastDownload = Instant.now().epochSecond
-            }
+    suspend fun create(from: String, to: String, min: Int, median: Int): Connection = dbquery {
+        Connection.new {
+            fromStation = from
+            toStation = to
+            minDuration = min
+            medianDuration = median
+            lastDownload = Instant.now().epochSecond
         }
     }
 }
+
+private suspend fun <T> dbquery(block: () -> T): T = suspendedTransactionAsync(Dispatchers.IO) {
+    block()
+}.await()

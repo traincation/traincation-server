@@ -27,6 +27,7 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-dao", "0.24.1")
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.24.1")
     implementation("org.postgresql:postgresql:42.2.2")
+    implementation("com.zaxxer:HikariCP:2.7.8")
 
     implementation(fileTree("lib") {
         include("*.jar")
