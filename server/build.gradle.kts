@@ -8,8 +8,8 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
-group = "pro.schmid"
-version = "0.0.1-SNAPSHOT"
+group = "pro.schmid.sbbtsp"
+version = "0.0.1"
 
 application {
     mainClassName = "io.ktor.server.cio.EngineMain"
