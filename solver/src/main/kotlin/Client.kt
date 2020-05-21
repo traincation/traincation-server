@@ -4,18 +4,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import pro.schmid.sbbtsp.repositories.ConnectionsRepository
 import pro.schmid.sbbtsp.solver.DataModel
+import pro.schmid.sbbtsp.solver.Leg
 import pro.schmid.sbbtsp.solver.Solver
-
-data class Station(
-    val name: String,
-    val id: String
-)
 
 class Client {
 
     private val repository = ConnectionsRepository()
 
-    suspend fun solve(stations: List<Station>): String {
+    suspend fun solve(stations: List<String>): List<Leg> {
 
         val allConnections = coroutineScope {
             val arrayOfArray = Array(stations.size) { LongArray(stations.size) { 0 } }
@@ -25,8 +21,8 @@ class Client {
                     if (from == to) continue
 
                     launch {
-                        val fromId = stations[from].id
-                        val toId = stations[to].id
+                        val fromId = stations[from]
+                        val toId = stations[to]
                         val connection = repository.fetch(fromId, toId)
                         arrayOfArray[from][to] = connection.minDuration.toLong()
                     }
@@ -40,20 +36,17 @@ class Client {
         val solver = Solver()
         val route = solver.solve(data)
 
-        return buildString {
-            route.forEach {
-                val from = stations[it.from]
-                val to = stations[it.to]
-                appendln("From ${from.name} to ${to.name}: ${it.distance} minutes")
-            }
-            val totalTime = route.map { it.distance }.sum()
-            appendln("Total time: $totalTime minutes")
-        }
+        return route
     }
 }
 
+private data class Station(
+    val name: String,
+    val id: String
+)
+
 suspend fun main() {
-    val allPoints = listOf(
+    val stations = listOf(
         Station("Yverdon", "8504200"),
         Station("Stoosbahn", "8577453"),
         Station("Zernez", "8509262"),
@@ -65,6 +58,15 @@ suspend fun main() {
     )
 
     val client = Client()
-    val result = client.solve(allPoints)
+    val route = client.solve(stations.map { it.id })
+    val result = buildString {
+        route.forEach {
+            val from = stations[it.from]
+            val to = stations[it.to]
+            appendln("From ${from.name} to ${to.name}: ${it.durationMinutes} minutes")
+        }
+        val totalTime = route.map { it.durationMinutes }.sum()
+        appendln("Total time: $totalTime minutes")
+    }
     println(result)
 }

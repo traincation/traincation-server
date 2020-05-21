@@ -1,4 +1,4 @@
-package pro.schmid
+package pro.schmid.sbbtsp.server
 
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -7,20 +7,26 @@ import io.ktor.features.*
 import io.ktor.http.ContentType
 import io.ktor.locations.Locations
 import io.ktor.request.path
+import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.serialization.json
+import io.ktor.server.cio.EngineMain
 import org.slf4j.event.Level
 import pro.schmid.sbbtsp.Client
-import pro.schmid.sbbtsp.Station
 
-fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
-@kotlin.jvm.JvmOverloads
+@JvmOverloads
 fun Application.module(testing: Boolean = false) {
     install(Locations) {
+    }
+
+    install(ContentNegotiation) {
+        json()
     }
 
     install(Compression) {
@@ -51,16 +57,13 @@ fun Application.module(testing: Boolean = false) {
 
             get("/solver") {
 
-                val allPoints = listOf(
-                    Station("Yverdon", "8504200"),
-                    Station("Stoosbahn", "8577453"),
-                    Station("Zernez", "8509262"),
-                    Station("Grindelwald", "8505226"),
-                    Station("Bâle", "8500010")
-                )
-                val result = client.solve(allPoints)
+                val stations = listOf("8504200", "8577453", "8509262", "8505226", "8500010")
+                val route = client.solve(stations)
 
-                call.respondText(result)
+                val legs = route.map { Leg(stations[it.from], stations[it.to], it.durationMinutes) }
+                val result = Result(legs)
+
+                call.respond(result)
             }
         }
     }

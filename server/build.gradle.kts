@@ -5,6 +5,7 @@ val kotlin_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.3.72"
+    kotlin("plugin.serialization") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
@@ -27,6 +28,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-locations:$ktor_version")
+    implementation("io.ktor:ktor-serialization:$ktor_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 
     implementation(project(":solver"))

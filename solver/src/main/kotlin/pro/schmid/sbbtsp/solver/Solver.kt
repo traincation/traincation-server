@@ -57,5 +57,5 @@ data class DataModel(
 data class Leg(
     val from: Int,
     val to: Int,
-    val distance: Long
+    val durationMinutes: Long
 )
