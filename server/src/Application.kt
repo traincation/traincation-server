@@ -7,9 +7,11 @@ import io.ktor.features.*
 import io.ktor.http.ContentType
 import io.ktor.locations.Locations
 import io.ktor.request.path
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.serialization.json
@@ -55,9 +57,10 @@ fun Application.module(testing: Boolean = false) {
 
         route("api/") {
 
-            get("/solver") {
+            post("/solver") {
 
-                val stations = listOf("8504200", "8577453", "8509262", "8505226", "8500010")
+                val request = call.receive<SolverRequest>()
+                val stations = request.stationsIds
                 val route = client.solve(stations)
 
                 val legs = route.map { Leg(stations[it.from], stations[it.to], it.durationMinutes) }

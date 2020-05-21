@@ -13,3 +13,8 @@ data class Leg(
     val to: String,
     val durationMinutes: Long
 )
+
+@Serializable
+data class SolverRequest(
+    val stationsIds: List<String>
+)
