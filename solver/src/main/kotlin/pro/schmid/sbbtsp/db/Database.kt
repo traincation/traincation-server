@@ -3,25 +3,30 @@ package pro.schmid.sbbtsp.db
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.postgresql.ds.PGPoolingDataSource
 import java.net.URI
 import java.time.Instant
 
 class Database {
     init {
         val dbUri = URI(System.getenv("DATABASE_URL"))
-        
+
         val split = dbUri.userInfo.split(":")
         val username: String = split[0]
         val password: String = split[1]
-        val ssl = if (dbUri.host != "localhost") "?sslmode=require" else ""
-        val dbUrl = "jdbc:postgresql://${dbUri.host}:${dbUri.port}${dbUri.path}$ssl"
 
-        Database.connect(
-            url = dbUrl,
-            driver = "org.postgresql.Driver",
-            user = username,
-            password = password
-        )
+
+        val pool = PGPoolingDataSource()// PGConnectionPoolDataSource()
+        pool.serverName = dbUri.host
+        pool.portNumber = dbUri.port
+        pool.databaseName = dbUri.path.substring(1)
+        pool.user = username
+        pool.password = password
+        if (dbUri.host != "localhost") {
+            pool.sslMode = "require"
+        }
+
+        Database.connect(pool)
 
         transaction {
             addLogger(StdOutSqlLogger)
