@@ -1,15 +1,18 @@
 package pro.schmid
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.locations.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.features.*
-import org.slf4j.event.*
-import io.ktor.http.content.*
-import io.ktor.util.date.*
+import io.ktor.http.ContentType
+import io.ktor.locations.Location
+import io.ktor.locations.Locations
+import io.ktor.locations.get
+import io.ktor.request.path
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import org.slf4j.event.Level
 
 fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
@@ -51,13 +54,18 @@ fun Application.module(testing: Boolean = false) {
         get<Type.List> {
             call.respondText("Inside $it")
         }
+
+        get("/solver") {
+            call.respondText("Hello World")
+        }
     }
 }
 
 @Location("/location/{name}")
 class MyLocation(val name: String, val arg1: Int = 42, val arg2: String = "default")
 
-@Location("/type/{name}") data class Type(val name: String) {
+@Location("/type/{name}")
+data class Type(val name: String) {
     @Location("/edit")
     data class Edit(val type: Type)
 
