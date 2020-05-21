@@ -3,15 +3,24 @@ package pro.schmid.sbbtsp.db
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.net.URI
 import java.time.Instant
 
 class Database {
     init {
+        val dbUri = URI(System.getenv("DATABASE_URL"))
+        
+        val split = dbUri.userInfo.split(":")
+        val username: String = split[0]
+        val password: String = split[1]
+        val ssl = if (dbUri.host != "localhost") "?sslmode=require" else ""
+        val dbUrl = "jdbc:postgresql://${dbUri.host}:${dbUri.port}${dbUri.path}$ssl"
+
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/postgres",
+            url = dbUrl,
             driver = "org.postgresql.Driver",
-            user = "postgres",
-            password = "helloworld"
+            user = username,
+            password = password
         )
 
         transaction {
