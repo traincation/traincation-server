@@ -10,4 +10,4 @@ RUN mv or-tools_Ubuntu-19.10-64bit_v7.6.7691/lib/ . && rm -rf or-tools_Ubuntu-19
 
 COPY server/build/libs/server-0.0.1-all.jar /usr/src/server.jar
 
-CMD ["java", "-server", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-XX:InitialRAMFraction=2", "-XX:MinRAMFraction=2", "-XX:MaxRAMFraction=2", "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=100", "-XX:+UseStringDeduplication", "-Djava.library.path=lib", "-jar", "server.jar"]
+CMD ["java", "-server", "-XX:+UnlockExperimentalVMOptions", "-XX:InitialRAMFraction=2", "-XX:MinRAMFraction=2", "-XX:MaxRAMFraction=2", "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=100", "-XX:+UseStringDeduplication", "-Djava.library.path=lib", "-jar", "server.jar"]
