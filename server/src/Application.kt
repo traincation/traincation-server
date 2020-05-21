@@ -13,6 +13,8 @@ import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import org.slf4j.event.Level
+import pro.schmid.sbbtsp.Client
+import pro.schmid.sbbtsp.Station
 
 fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
@@ -56,7 +58,19 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/solver") {
-            call.respondText("Hello World")
+
+            val allPoints = listOf(
+                Station("Yverdon", "8504200"),
+                Station("Stoosbahn", "8577453"),
+                Station("Zernez", "8509262"),
+                Station("Grindelwald", "8505226"),
+                Station("Bâle", "8500010")
+            )
+
+            val client = Client()
+            val result = client.solve(allPoints)
+
+            call.respondText(result)
         }
     }
 }

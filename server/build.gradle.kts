@@ -27,6 +27,8 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-locations:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+
+    implementation(project(":solver"))
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
