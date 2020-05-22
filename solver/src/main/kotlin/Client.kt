@@ -7,10 +7,12 @@ import pro.schmid.sbbtsp.repositories.ConnectionsRepository
 import pro.schmid.sbbtsp.solver.DataModel
 import pro.schmid.sbbtsp.solver.Leg
 import pro.schmid.sbbtsp.solver.Solver
+import kotlin.system.measureNanoTime
 
 class Client {
 
     private val repository = ConnectionsRepository()
+    private val solverOrTools = Solver()
 
     suspend fun solve(stations: List<String>): List<Leg> {
 
@@ -35,23 +37,30 @@ class Client {
 
 
         val data = DataModel(allConnections)
-        val solverOrTools = Solver()
-        val routeOrTools = solverOrTools.solve(data)
+        var routeOrTools: List<Leg> = listOf()
+        val timeOrTools = measureNanoTime {
+            routeOrTools = solverOrTools.solve(data)
+        }
         val totalOrTools = routeOrTools.map { it.durationMinutes }.sum()
 
         println(routeOrTools.map { it.from })
         println(totalOrTools)
+        println(timeOrTools)
 
         val doubleConnections = allConnections.map { it.map { it.toDouble() }.toDoubleArray() }.toTypedArray()
 
         val solverJava = TspDynamicProgrammingIterative(doubleConnections)
+        val timeJava = measureNanoTime {
+            solverJava.solve()
+        }
         val tourJava = solverJava.tour
         val totalJava = solverJava.tourCost
 
         println(tourJava)
         println(totalJava)
+        println(timeJava)
 
-        return listOf()
+        return routeOrTools
     }
 }
 
@@ -69,10 +78,26 @@ suspend fun main() {
         Station("Bâle", "8500010"),
         Station("Kandersteg", "8507475"),
         Station("Zermatt", "8501689"),
-        Station("Lucerne", "8505000")
+        Station("Lucerne", "8505000"),
+        Station("Genève", "8501008"),
+        Station("St-Gallen", "8506302"),
+        Station("Zurich", "8503000"),
+        Station("Lausanne", "8501120")
     )
 
     val client = Client()
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
+    client.solve(stations.map { it.id })
     val route = client.solve(stations.map { it.id })
     val result = buildString {
         route.forEach {
