@@ -1,23 +1,20 @@
 package pro.schmid.sbbtsp
 
-import TspDynamicProgrammingIterative
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import pro.schmid.sbbtsp.repositories.ConnectionsRepository
-import pro.schmid.sbbtsp.solver.DataModel
 import pro.schmid.sbbtsp.solver.Leg
 import pro.schmid.sbbtsp.solver.Solver
-import kotlin.system.measureNanoTime
 
 class Client {
 
     private val repository = ConnectionsRepository()
-    private val solverOrTools = Solver()
+    private val solver = Solver()
 
     suspend fun solve(stations: List<String>): List<Leg> {
 
         val allConnections = coroutineScope {
-            val arrayOfArray = Array(stations.size) { LongArray(stations.size) { 0 } }
+            val arrayOfArray = Array(stations.size) { DoubleArray(stations.size) { 0.0 } }
 
             for (from in arrayOfArray.indices) {
                 for (to in arrayOfArray.indices) {
@@ -27,7 +24,7 @@ class Client {
                         val fromId = stations[from]
                         val toId = stations[to]
                         val connection = repository.fetch(fromId, toId)
-                        arrayOfArray[from][to] = connection.minDuration.toLong()
+                        arrayOfArray[from][to] = connection.minDuration.toDouble()
                     }
                 }
             }
@@ -35,32 +32,7 @@ class Client {
             arrayOfArray
         }
 
-
-        val data = DataModel(allConnections)
-        var routeOrTools: List<Leg> = listOf()
-        val timeOrTools = measureNanoTime {
-            routeOrTools = solverOrTools.solve(data)
-        }
-        val totalOrTools = routeOrTools.map { it.durationMinutes }.sum()
-
-        println(routeOrTools.map { it.from })
-        println(totalOrTools)
-        println(timeOrTools)
-
-        val doubleConnections = allConnections.map { it.map { it.toDouble() }.toDoubleArray() }.toTypedArray()
-
-        val solverJava = TspDynamicProgrammingIterative(doubleConnections)
-        val timeJava = measureNanoTime {
-            solverJava.solve()
-        }
-        val tourJava = solverJava.tour
-        val totalJava = solverJava.tourCost
-
-        println(tourJava)
-        println(totalJava)
-        println(timeJava)
-
-        return routeOrTools
+        return solver.solve(allConnections)
     }
 }
 
@@ -86,18 +58,6 @@ suspend fun main() {
     )
 
     val client = Client()
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
-    client.solve(stations.map { it.id })
     val route = client.solve(stations.map { it.id })
     val result = buildString {
         route.forEach {

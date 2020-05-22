@@ -7,6 +7,9 @@
  * @author William Fiset, william.alexandre.fiset@gmail.com
  */
 
+// https://github.com/williamfiset/Algorithms
+package com.williamfiset.algorithms.graphtheory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
