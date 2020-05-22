@@ -1,58 +1,25 @@
 package pro.schmid.sbbtsp.solver
 
-import com.google.ortools.constraintsolver.*
+import com.williamfiset.algorithms.graphtheory.TspDynamicProgrammingIterative
 
 class Solver {
-    init {
-        System.loadLibrary("jniortools")
-    }
+    fun solve(data: Array<DoubleArray>): List<Leg> {
+        val tspSolver = TspDynamicProgrammingIterative(data)
+        val route = tspSolver.tour
 
-    fun solve(data: DataModel): List<Leg> {
-        val manager = RoutingIndexManager(data.distanceMatrix.size, data.vehicleNumber, data.depot)
-        val routing = RoutingModel(manager)
-
-        val transitCallbackIndex =
-            routing.registerTransitCallback { fromIndex: Long, toIndex: Long ->
-                // Convert from routing variable Index to user NodeIndex.
-                val fromNode = manager.indexToNode(fromIndex)
-                val toNode = manager.indexToNode(toIndex)
-                data.distanceMatrix[fromNode][toNode]
-            }
-
-        routing.setArcCostEvaluatorOfAllVehicles(transitCallbackIndex)
-
-        val searchParameters =
-            main.defaultRoutingSearchParameters()
-                .toBuilder()
-                .setFirstSolutionStrategy(FirstSolutionStrategy.Value.PATH_CHEAPEST_ARC)
-                .build()
-
-        val solution = routing.solveWithParameters(searchParameters)
-
-        return createLegs(routing, manager, solution)
+        return createLegs(data, route)
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    private fun createLegs(
-        routing: RoutingModel, manager: RoutingIndexManager, solution: Assignment
-    ): List<Leg> = buildList {
-        var index = routing.start(0)
-        while (!routing.isEnd(index)) {
-            val fromId = manager.indexToNode(index)
-            val previousIndex = index
-            index = solution.value(routing.nextVar(index))
-            val toId = manager.indexToNode(index)
-            val distance = routing.getArcCostForVehicle(previousIndex, index, 0)
-            add(Leg(fromId, toId, distance))
+    private fun createLegs(data: Array<DoubleArray>, route: List<Int>): List<Leg> = buildList {
+        for (index in 0 until route.size - 1) {
+            val from = route[index]
+            val to = route[index + 1]
+            val distance = data[from][to]
+            add(Leg(from, to, distance.toLong()))
         }
     }
 }
-
-data class DataModel(
-    val distanceMatrix: Array<LongArray>,
-    val vehicleNumber: Int = 1,
-    val depot: Int = 0
-)
 
 data class Leg(
     val from: Int,

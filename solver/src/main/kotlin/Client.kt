@@ -3,18 +3,18 @@ package pro.schmid.sbbtsp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import pro.schmid.sbbtsp.repositories.ConnectionsRepository
-import pro.schmid.sbbtsp.solver.DataModel
 import pro.schmid.sbbtsp.solver.Leg
 import pro.schmid.sbbtsp.solver.Solver
 
 class Client {
 
     private val repository = ConnectionsRepository()
+    private val solver = Solver()
 
     suspend fun solve(stations: List<String>): List<Leg> {
 
         val allConnections = coroutineScope {
-            val arrayOfArray = Array(stations.size) { LongArray(stations.size) { 0 } }
+            val arrayOfArray = Array(stations.size) { DoubleArray(stations.size) { 0.0 } }
 
             for (from in arrayOfArray.indices) {
                 for (to in arrayOfArray.indices) {
@@ -24,7 +24,7 @@ class Client {
                         val fromId = stations[from]
                         val toId = stations[to]
                         val connection = repository.fetch(fromId, toId)
-                        arrayOfArray[from][to] = connection.minDuration.toLong()
+                        arrayOfArray[from][to] = connection.minDuration.toDouble()
                     }
                 }
             }
@@ -32,11 +32,7 @@ class Client {
             arrayOfArray
         }
 
-        val data = DataModel(allConnections)
-        val solver = Solver()
-        val route = solver.solve(data)
-
-        return route
+        return solver.solve(allConnections)
     }
 }
 
@@ -54,7 +50,11 @@ suspend fun main() {
         Station("Bâle", "8500010"),
         Station("Kandersteg", "8507475"),
         Station("Zermatt", "8501689"),
-        Station("Lucerne", "8505000")
+        Station("Lucerne", "8505000"),
+        Station("Genève", "8501008"),
+        Station("St-Gallen", "8506302"),
+        Station("Zurich", "8503000"),
+        Station("Lausanne", "8501120")
     )
 
     val client = Client()
