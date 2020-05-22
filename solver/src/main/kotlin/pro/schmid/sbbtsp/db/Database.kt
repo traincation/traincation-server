@@ -54,6 +54,5 @@ class Database {
     }
 }
 
-private suspend fun <T> dbquery(block: () -> T): T = suspendedTransactionAsync(Dispatchers.IO) {
-    block()
-}.await()
+private suspend fun <T> dbquery(statement: suspend Transaction.() -> T): T =
+    suspendedTransactionAsync(Dispatchers.IO, statement = statement).await()
