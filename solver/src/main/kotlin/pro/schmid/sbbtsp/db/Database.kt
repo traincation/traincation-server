@@ -23,7 +23,8 @@ class Database {
             jdbcUrl = "jdbc:postgresql://${dbUri.host}:${dbUri.port}${dbUri.path}"
             this.username = username
             this.password = password
-            maximumPoolSize = 20
+            // Heroku Postgres free allows 20 connections. Keep one to connect for debugging
+            maximumPoolSize = 19
             validate()
         }
 
