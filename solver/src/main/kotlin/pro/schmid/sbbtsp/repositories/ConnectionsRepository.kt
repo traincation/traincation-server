@@ -2,6 +2,7 @@ package pro.schmid.sbbtsp.repositories
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import pro.schmid.sbbtsp.db.Connection
 import pro.schmid.sbbtsp.db.Database
 import pro.schmid.sbbtsp.transportapi.TransportApi
@@ -12,17 +13,18 @@ class ConnectionsRepository(
     private val database: Database = Database(),
     private val api: TransportApi = TransportApi()
 ) {
+    private val logger = LoggerFactory.getLogger("chapters.introduction.HelloWorld2");
 
     suspend fun fetch(from: String, to: String): Connection = withContext(Dispatchers.IO) {
-        println("($from, $to): Fetching...")
+        logger.debug("($from, $to): Fetching...")
         database.get(from, to)?.let {
-            println("($from, $to): Found from DB")
+            logger.debug("($from, $to): Found from DB")
             return@withContext it
         }
 
-        println("($from, $to): Downloading...")
+        logger.debug("($from, $to): Downloading...")
         val allConnections = api.downloadConnections(from, to)
-        println("($from, $to): Downloaded")
+        logger.debug("($from, $to): Downloaded")
 
         val allTimes = allConnections.mapNotNull {
             val journeyDuration = it.duration
