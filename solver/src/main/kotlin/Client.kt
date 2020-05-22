@@ -1,5 +1,6 @@
 package pro.schmid.sbbtsp
 
+import TspDynamicProgrammingIterative
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import pro.schmid.sbbtsp.repositories.ConnectionsRepository
@@ -32,11 +33,25 @@ class Client {
             arrayOfArray
         }
 
-        val data = DataModel(allConnections)
-        val solver = Solver()
-        val route = solver.solve(data)
 
-        return route
+        val data = DataModel(allConnections)
+        val solverOrTools = Solver()
+        val routeOrTools = solverOrTools.solve(data)
+        val totalOrTools = routeOrTools.map { it.durationMinutes }.sum()
+
+        println(routeOrTools.map { it.from })
+        println(totalOrTools)
+
+        val doubleConnections = allConnections.map { it.map { it.toDouble() }.toDoubleArray() }.toTypedArray()
+
+        val solverJava = TspDynamicProgrammingIterative(doubleConnections)
+        val tourJava = solverJava.tour
+        val totalJava = solverJava.tourCost
+
+        println(tourJava)
+        println(totalJava)
+
+        return listOf()
     }
 }
 
