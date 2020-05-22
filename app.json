@@ -1,0 +1,6 @@
+{
+  "name": "SBB TSP",
+  "description": "Computing the shortest path between SBB stations",
+  "image": "heroku/java",
+  "addons": [ "heroku-postgresql" ]
+}
