@@ -34,23 +34,45 @@ class Database {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.createMissingTablesAndColumns(Connections)
+            SchemaUtils.createMissingTablesAndColumns(Connections, Stations)
         }
     }
 
-    suspend fun get(from: String, to: String): Connection? = dbquery {
+    suspend fun getConnection(from: String, to: String): Connection? = dbquery {
         Connection.find {
             Connections.fromStation eq from and (Connections.toStation eq to)
         }.firstOrNull()
     }
 
-    suspend fun create(from: String, to: String, min: Int, median: Int): Connection = dbquery {
+    suspend fun createConnection(from: String, to: String, min: Int, median: Int): Connection = dbquery {
         Connection.new {
             fromStation = from
             toStation = to
             minDuration = min
             medianDuration = median
             lastDownload = Instant.now().epochSecond
+        }
+    }
+
+    suspend fun getStation(apiId: String): Station? = dbquery {
+        Station.find {
+            Stations.apiId eq apiId
+        }.firstOrNull()
+    }
+
+    suspend fun createStation(
+        apiId: String,
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        type: String?
+    ): Station = dbquery {
+        Station.new {
+            this.apiId = apiId
+            this.name = name
+            this.latitude = latitude
+            this.longitude = longitude
+            this.type = type
         }
     }
 }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import pro.schmid.sbbtsp.db.Connection
 import pro.schmid.sbbtsp.db.Database
+import pro.schmid.sbbtsp.db.Station
 import pro.schmid.sbbtsp.transportapi.TransportApi
 
 private val regex = Regex("([0-9]{2})d([0-9]{2}):([0-9]{2}):([0-9]{2})")
@@ -13,11 +14,11 @@ class ConnectionsRepository(
     private val database: Database = Database(),
     private val api: TransportApi = TransportApi()
 ) {
-    private val logger = LoggerFactory.getLogger("chapters.introduction.HelloWorld2");
+    private val logger = LoggerFactory.getLogger("ConnectionsRepository");
 
     suspend fun fetchConnections(from: String, to: String): Connection = withContext(Dispatchers.IO) {
         logger.debug("($from, $to): Fetching...")
-        database.get(from, to)?.let {
+        database.getConnection(from, to)?.let {
             logger.debug("($from, $to): Found from DB")
             return@withContext it
         }
@@ -41,7 +42,7 @@ class ConnectionsRepository(
             return@mapNotNull totalMinutes
         }.sorted()
 
-        val fromNetwork = database.create(
+        val fromNetwork = database.createConnection(
             from,
             to,
             allTimes.first(),
@@ -50,8 +51,10 @@ class ConnectionsRepository(
         return@withContext fromNetwork
     }
 
-    suspend fun fetchLocations(query: String): List<String> = withContext(Dispatchers.IO) {
-        api.downloadLocations(query).map { it.name }
+    suspend fun fetchLocations(query: String): List<Station> = withContext(Dispatchers.IO) {
+        val allStations = api.downloadLocations(query)
+
+        allStations.map { database.createStation(it.id, it.name, it.coordinate.x, it.coordinate.y, it.icon) }
     }
 }
 

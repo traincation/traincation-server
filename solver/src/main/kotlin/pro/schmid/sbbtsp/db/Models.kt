@@ -27,3 +27,23 @@ class Connection(id: EntityID<Int>) : IntEntity(id) {
     var lastDownload by Connections.lastDownload
 
 }
+
+object Stations : IntIdTable() {
+    val apiId = varchar("apiId", 10).uniqueIndex()
+    val name = varchar("name", 100)
+    val latitude = double("latitude")
+    val longitude = double("longitude")
+    val type = varchar("type", 100).nullable()
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+class Station(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Station>(Stations)
+
+    var apiId by Stations.apiId
+    var name by Stations.name
+    var latitude by Stations.latitude
+    var longitude by Stations.longitude
+    var type by Stations.type
+}
