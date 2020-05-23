@@ -11,6 +11,12 @@ class Client {
     private val repository = ConnectionsRepository()
     private val solver = Solver()
 
+    suspend fun findStations(stations: List<String>): List<String> {
+        return stations.mapNotNull { stationId ->
+            repository.fetchLocations(stationId).firstOrNull()
+        }
+    }
+
     suspend fun solve(stations: List<String>): List<Leg> {
 
         val allConnections = coroutineScope {
@@ -23,7 +29,7 @@ class Client {
                     launch {
                         val fromId = stations[from]
                         val toId = stations[to]
-                        val connection = repository.fetch(fromId, toId)
+                        val connection = repository.fetchConnections(fromId, toId)
                         arrayOfArray[from][to] = connection.minDuration.toDouble()
                     }
                 }
@@ -42,7 +48,7 @@ private data class Station(
 )
 
 suspend fun main() {
-    val stations = listOf(
+    val inputStations = listOf(
         Station("Yverdon", "8504200"),
         Station("Stoosbahn", "8577453"),
         Station("Zernez", "8509262"),
@@ -56,13 +62,18 @@ suspend fun main() {
         Station("Zurich", "8503000"),
         Station("Lausanne", "8501120")
     )
+    val stationsIds = inputStations.map { it.id }
 
     val client = Client()
-    val route = client.solve(stations.map { it.id })
+
+    val stations = client.findStations(stationsIds)
+    println(stations)
+
+    val route = client.solve(stationsIds)
     val result = buildString {
         route.forEach {
-            val from = stations[it.from]
-            val to = stations[it.to]
+            val from = inputStations[it.from]
+            val to = inputStations[it.to]
             appendln("From ${from.name} to ${to.name}: ${it.durationMinutes} minutes")
         }
         val totalTime = route.map { it.durationMinutes }.sum()

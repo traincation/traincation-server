@@ -15,7 +15,7 @@ class ConnectionsRepository(
 ) {
     private val logger = LoggerFactory.getLogger("chapters.introduction.HelloWorld2");
 
-    suspend fun fetch(from: String, to: String): Connection = withContext(Dispatchers.IO) {
+    suspend fun fetchConnections(from: String, to: String): Connection = withContext(Dispatchers.IO) {
         logger.debug("($from, $to): Fetching...")
         database.get(from, to)?.let {
             logger.debug("($from, $to): Found from DB")
@@ -48,6 +48,10 @@ class ConnectionsRepository(
             allTimes.median()
         )
         return@withContext fromNetwork
+    }
+
+    suspend fun fetchLocations(query: String): List<String> = withContext(Dispatchers.IO) {
+        api.downloadLocations(query).map { it.name }
     }
 }
 
