@@ -4,8 +4,8 @@ val kotlin_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
-    kotlin("plugin.serialization") version "1.3.72"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
