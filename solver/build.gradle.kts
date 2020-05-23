@@ -7,8 +7,8 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-group = "pro.schmid"
-version = "1.0-SNAPSHOT"
+group = "pro.schmid.sbbtsp"
+version = "0.0.1"
 
 repositories {
     mavenCentral()
