@@ -2,8 +2,8 @@ package pro.schmid.sbbtsp
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import pro.schmid.sbbtsp.db.Station
 import pro.schmid.sbbtsp.repositories.ConnectionsRepository
+import pro.schmid.sbbtsp.repositories.Station
 import pro.schmid.sbbtsp.solver.Leg
 import pro.schmid.sbbtsp.solver.Solver
 
@@ -12,10 +12,8 @@ class Client {
     private val repository = ConnectionsRepository()
     private val solver = Solver()
 
-    suspend fun findStations(stationsIds: List<String>): Map<String, Station> {
-        val allStations = repository.fetchStations(stationsIds)
-        val stationById = allStations.associateBy { it.apiId }
-        return stationById
+    suspend fun findStations(stationsIds: List<String>): List<Station> {
+        return repository.fetchStations(stationsIds)
     }
 
     suspend fun solve(stations: List<String>): List<Leg> {
@@ -62,7 +60,8 @@ suspend fun main() {
     val client = Client()
 
     val stations = client.findStations(stationsIds)
-    val stationsPrint = stations.map { "${it.key}: ${it.value.name}" }
+    val stationById = stations.associateBy { it.apiId }
+    val stationsPrint = stationById.map { "${it.key}: ${it.value.name}" }
     println(stationsPrint)
 
     val route = client.solve(stationsIds)
@@ -70,8 +69,8 @@ suspend fun main() {
         route.forEach {
             val fromApiId = stationsIds[it.from]
             val toApiId = stationsIds[it.to]
-            val from = stations[fromApiId]!!
-            val to = stations[toApiId]!!
+            val from = stationById[fromApiId]!!
+            val to = stationById[toApiId]!!
             appendln("From ${from.name} to ${to.name}: ${it.durationMinutes} minutes")
         }
         val totalTime = route.map { it.durationMinutes }.sum()
@@ -79,12 +78,3 @@ suspend fun main() {
     }
     println(result)
 }
-
-
-data class Station3(
-    val apiId: String,
-    val name: String,
-    val latitude: Double,
-    val longitude: Double,
-    val type: String?
-)

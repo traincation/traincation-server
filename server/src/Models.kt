@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Result(
-    val legs: List<Leg>
+    val legs: List<Leg>,
+    val stations: List<Station>
 )
 
 @Serializable
@@ -12,6 +13,15 @@ data class Leg(
     val from: String,
     val to: String,
     val durationMinutes: Long
+)
+
+@Serializable
+data class Station(
+    val apiId: String,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+    val type: String?
 )
 
 @Serializable

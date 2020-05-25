@@ -2,9 +2,7 @@ package pro.schmid.sbbtsp.repositories
 
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
-import pro.schmid.sbbtsp.db.Connection
 import pro.schmid.sbbtsp.db.Database
-import pro.schmid.sbbtsp.db.Station
 import pro.schmid.sbbtsp.transportapi.TransportApi
 
 private val regex = Regex("([0-9]{2})d([0-9]{2}):([0-9]{2}):([0-9]{2})")
@@ -19,7 +17,7 @@ class ConnectionsRepository(
         logger.debug("($from, $to): Fetching...")
         database.getConnection(from, to)?.let {
             logger.debug("($from, $to): Found from DB")
-            return@withContext it
+            return@withContext it.toRepoModel()
         }
 
         logger.debug("($from, $to): Downloading...")
@@ -47,7 +45,7 @@ class ConnectionsRepository(
             allTimes.first(),
             allTimes.median()
         )
-        return@withContext fromNetwork
+        return@withContext fromNetwork.toRepoModel()
     }
 
     suspend fun fetchStations(stationsIds: List<String>): List<Station> {
@@ -80,7 +78,8 @@ class ConnectionsRepository(
             )
         }
 
-        return existingStations + newStations
+        val allStations = existingStations + newStations
+        return allStations.map { it.toRepoModel() }
     }
 }
 

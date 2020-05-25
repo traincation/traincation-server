@@ -60,11 +60,13 @@ fun Application.module(testing: Boolean = false) {
             post("/solver") {
 
                 val request = call.receive<SolverRequest>()
-                val stations = request.stationsIds
-                val route = client.solve(stations)
+                val stationsIds = request.stationsIds
+                val repoStations = client.findStations(stationsIds)
+                val route = client.solve(stationsIds)
 
-                val legs = route.map { Leg(stations[it.from], stations[it.to], it.durationMinutes) }
-                val result = Result(legs)
+                val stations = repoStations.map { Station(it.apiId, it.name, it.latitude, it.longitude, it.type) }
+                val legs = route.map { Leg(stationsIds[it.from], stationsIds[it.to], it.durationMinutes) }
+                val result = Result(legs, stations)
 
                 call.respond(result)
             }
