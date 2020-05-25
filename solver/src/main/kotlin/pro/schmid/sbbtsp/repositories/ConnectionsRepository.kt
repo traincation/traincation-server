@@ -52,7 +52,8 @@ class ConnectionsRepository(
 
     suspend fun fetchStations(stationsIds: List<String>): List<Station> {
 
-        val existingIds = database.getExistingStationsId(stationsIds)
+        val existingStations = database.getExistingStations(stationsIds)
+        val existingIds = existingStations.map { it.apiId }
         val missingIds = stationsIds.subtract(existingIds)
 
         val allStationsJobs = coroutineScope {
@@ -69,7 +70,7 @@ class ConnectionsRepository(
             .distinctBy { it.id }
 
         // Create all missing stations
-        distinctStations.map {
+        val newStations = distinctStations.map {
             database.createStation(
                 it.id,
                 it.name,
@@ -79,7 +80,7 @@ class ConnectionsRepository(
             )
         }
 
-        return database.getExistingStations(stationsIds)
+        return existingStations + newStations
     }
 }
 

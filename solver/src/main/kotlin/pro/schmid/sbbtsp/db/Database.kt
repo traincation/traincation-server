@@ -54,12 +54,6 @@ class Database {
         }
     }
 
-    suspend fun getExistingStationsId(stationsIds: List<String>): List<String> = dbquery {
-        Stations.slice(Stations.apiId)
-            .select { Stations.apiId inList stationsIds }
-            .map { it[Stations.apiId] }
-    }
-
     suspend fun getExistingStations(stationsIds: List<String>): List<Station> = dbquery {
         Station.find { Stations.apiId inList stationsIds }.toList()
     }
