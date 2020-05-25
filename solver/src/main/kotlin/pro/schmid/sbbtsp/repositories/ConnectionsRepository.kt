@@ -1,7 +1,6 @@
 package pro.schmid.sbbtsp.repositories
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import pro.schmid.sbbtsp.db.Connection
 import pro.schmid.sbbtsp.db.Database
@@ -51,10 +50,36 @@ class ConnectionsRepository(
         return@withContext fromNetwork
     }
 
-    suspend fun fetchLocations(query: String): List<Station> = withContext(Dispatchers.IO) {
-        val allStations = api.downloadLocations(query)
+    suspend fun fetchStations(stationsIds: List<String>): List<Station> {
 
-        allStations.map { database.createStation(it.id, it.name, it.coordinate.x, it.coordinate.y, it.icon) }
+        val existingIds = database.getExistingStationsId(stationsIds)
+        val missingIds = stationsIds.subtract(existingIds)
+
+        val allStationsJobs = coroutineScope {
+            missingIds.map { stationId ->
+                async {
+                    api.downloadLocations(stationId)
+                }
+            }
+        }
+
+        val distinctStations = allStationsJobs
+            .awaitAll()
+            .flatten()
+            .distinctBy { it.id }
+
+        // Create all missing stations
+        distinctStations.map {
+            database.createStation(
+                it.id,
+                it.name,
+                it.coordinate.x,
+                it.coordinate.y,
+                it.icon
+            )
+        }
+
+        return database.getExistingStations(stationsIds)
     }
 }
 

@@ -12,8 +12,8 @@ class Client {
     private val repository = ConnectionsRepository()
     private val solver = Solver()
 
-    suspend fun findStations(stations: List<String>): Map<String, Station> {
-        val allStations = stations.flatMap { stationId -> repository.fetchLocations(stationId) }
+    suspend fun findStations(stationsIds: List<String>): Map<String, Station> {
+        val allStations = repository.fetchStations(stationsIds)
         val stationById = allStations.associateBy { it.apiId }
         return stationById
     }
