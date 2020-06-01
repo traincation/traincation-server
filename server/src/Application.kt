@@ -66,7 +66,17 @@ fun Application.module(testing: Boolean = false) {
 
                 val stations = repoStations.map { Station(it.apiId, it.name, it.latitude, it.longitude, it.type) }
                 val legs = route.map { Leg(stationsIds[it.from], stationsIds[it.to], it.durationMinutes) }
-                val result = Result(legs, stations)
+                val result = SolverResult(legs, stations)
+
+                call.respond(result)
+            }
+
+            post("/search") {
+                val request = call.receive<SearchRequest>()
+                val term = request.searchTerm
+                val repoStations = client.search(term)
+                val stations = repoStations.map { Station(it.apiId, it.name, it.latitude, it.longitude, it.type) }
+                val result = SearchResult(stations)
 
                 call.respond(result)
             }

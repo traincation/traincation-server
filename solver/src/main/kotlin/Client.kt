@@ -39,9 +39,21 @@ class Client {
 
         return solver.solve(allConnections)
     }
+
+    suspend fun search(term: String): List<Station> {
+        return repository.searchStation(term)
+    }
 }
 
 suspend fun main() {
+
+    val client = Client()
+
+    //doSolve(client)
+    search(client)
+}
+
+private suspend fun doSolve(client: Client) {
     val stationsIds = listOf(
         "8504200", // Yverdon
         "8577453", // Stoosbahn
@@ -56,8 +68,6 @@ suspend fun main() {
         "8503000", // Zurich
         "8501120"  // Lausanne
     )
-
-    val client = Client()
 
     val stations = client.findStations(stationsIds)
     val stationById = stations.associateBy { it.apiId }
@@ -77,4 +87,12 @@ suspend fun main() {
         appendln("Total time: $totalTime minutes")
     }
     println(result)
+}
+
+private suspend fun search(client: Client) {
+    val stationsYverdon = client.search("Yverdon")
+    stationsYverdon.forEach { println(it) }
+
+    val stationsLausanne = client.search("Lausanne")
+    stationsLausanne.forEach { println(it) }
 }

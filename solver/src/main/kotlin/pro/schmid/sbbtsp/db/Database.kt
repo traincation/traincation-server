@@ -72,14 +72,12 @@ class Database {
             it[medianDuration] = median
             it[lastDownload] = Instant.now().epochSecond
         }
-        return@dbquery row.let {
-            pro.schmid.sbbtsp.repositories.Connection(
-                it[pro.schmid.sbbtsp.db.Connections.fromStation].value,
-                it[pro.schmid.sbbtsp.db.Connections.toStation].value,
-                it[pro.schmid.sbbtsp.db.Connections.minDuration],
-                it[pro.schmid.sbbtsp.db.Connections.medianDuration]
-            )
-        }
+        return@dbquery Connection(
+            row[fromStation].value,
+            row[toStation].value,
+            row[minDuration],
+            row[medianDuration]
+        )
     }
 
     suspend fun getExistingStations(stationsIds: List<String>): List<Station> = dbquery {
@@ -110,15 +108,13 @@ class Database {
             it[Stations.longitude] = longitude
             it[Stations.type] = type
         }
-        return@dbquery row.let {
-            Station(
-                it[Stations.id].value,
-                it[Stations.name],
-                it[Stations.latitude],
-                it[Stations.longitude],
-                it[Stations.type]
-            )
-        }
+        return@dbquery Station(
+            row[Stations.id].value,
+            row[Stations.name],
+            row[Stations.latitude],
+            row[Stations.longitude],
+            row[Stations.type]
+        )
     }
 }
 
