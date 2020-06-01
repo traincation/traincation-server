@@ -17,7 +17,7 @@ class ConnectionsRepository(
         logger.debug("($from, $to): Fetching...")
         database.getConnection(from, to)?.let {
             logger.debug("($from, $to): Found from DB")
-            return@withContext it.toRepoModel()
+            return@withContext it
         }
 
         logger.debug("($from, $to): Downloading...")
@@ -45,13 +45,13 @@ class ConnectionsRepository(
             allTimes.first(),
             allTimes.median()
         )
-        return@withContext fromNetwork.toRepoModel()
+        return@withContext fromNetwork
     }
 
     suspend fun fetchStations(stationsIds: List<String>): List<Station> {
 
         val existingStations = database.getExistingStations(stationsIds)
-        val existingIds = existingStations.map { it.id.value }
+        val existingIds = existingStations.map { it.apiId }
         val missingIds = stationsIds.subtract(existingIds)
 
         val allStationsJobs = coroutineScope {
@@ -78,14 +78,13 @@ class ConnectionsRepository(
             )
         }
 
-        val allStations = existingStations + newStations
-        return allStations.map { it.toRepoModel() }
+        return existingStations + newStations
     }
 
     suspend fun searchStation(term: String): List<Station> {
         val apiResult = api.downloadLocations(term)
 
-        val newStations = apiResult.map {
+        return apiResult.map {
             database.createStation(
                 it.id,
                 it.name,
@@ -94,8 +93,6 @@ class ConnectionsRepository(
                 it.icon
             )
         }
-
-        return newStations.map { it.toRepoModel() }
     }
 }
 

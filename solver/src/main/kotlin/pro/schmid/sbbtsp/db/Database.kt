@@ -8,6 +8,16 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
+import pro.schmid.sbbtsp.db.Connections.fromStation
+import pro.schmid.sbbtsp.db.Connections.medianDuration
+import pro.schmid.sbbtsp.db.Connections.minDuration
+import pro.schmid.sbbtsp.db.Connections.toStation
+import pro.schmid.sbbtsp.db.Stations.latitude
+import pro.schmid.sbbtsp.db.Stations.longitude
+import pro.schmid.sbbtsp.db.Stations.name
+import pro.schmid.sbbtsp.db.Stations.type
+import pro.schmid.sbbtsp.repositories.Connection
+import pro.schmid.sbbtsp.repositories.Station
 import java.net.URI
 import java.time.Instant
 
@@ -35,29 +45,53 @@ class Database {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.drop(Connections, Stations)
             SchemaUtils.create(Connections, Stations)
         }
     }
 
     suspend fun getConnection(from: String, to: String): Connection? = dbquery {
-        Connection.find {
-            Connections.fromStation eq from and (Connections.toStation eq to)
+        val row = Connections.select {
+            fromStation eq from and (toStation eq to)
         }.firstOrNull()
-    }
 
-    suspend fun createConnection(from: String, to: String, min: Int, median: Int): Connection = dbquery {
-        Connection.new {
-            fromStationId = EntityID(from, Stations)
-            toStationId = EntityID(to, Stations)
-            minDuration = min
-            medianDuration = median
-            lastDownload = Instant.now().epochSecond
+        return@dbquery row?.let {
+            Connection(
+                it[fromStation].value,
+                it[toStation].value,
+                it[minDuration],
+                it[medianDuration]
+            )
         }
     }
 
+    suspend fun createConnection(from: String, to: String, min: Int, median: Int) = dbquery {
+        val row = Connections.insertIgnore {
+            it[fromStation] = EntityID(from, Stations)
+            it[toStation] = EntityID(to, Stations)
+            it[minDuration] = min
+            it[medianDuration] = median
+            it[lastDownload] = Instant.now().epochSecond
+        }
+        return@dbquery Connection(
+            row[fromStation].value,
+            row[toStation].value,
+            row[minDuration],
+            row[medianDuration]
+        )
+    }
+
     suspend fun getExistingStations(stationsIds: List<String>): List<Station> = dbquery {
-        Station.find { Stations.id inList stationsIds }.toList()
+        Stations
+            .select { Stations.id inList stationsIds }
+            .map {
+                Station(
+                    it[Stations.id].value,
+                    it[name],
+                    it[latitude],
+                    it[longitude],
+                    it[type]
+                )
+            }
     }
 
     suspend fun createStation(
@@ -67,14 +101,20 @@ class Database {
         longitude: Double,
         type: String?
     ): Station = dbquery {
-        Stations.insertIgnore {
+        val row = Stations.insertIgnore {
             it[Stations.id] = EntityID(apiId, Stations)
             it[Stations.name] = name
             it[Stations.latitude] = latitude
             it[Stations.longitude] = longitude
             it[Stations.type] = type
         }
-        Station[apiId]
+        return@dbquery Station(
+            row[Stations.id].value,
+            row[Stations.name],
+            row[Stations.latitude],
+            row[Stations.longitude],
+            row[Stations.type]
+        )
     }
 }
 
