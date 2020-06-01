@@ -3,8 +3,13 @@ package pro.schmid.sbbtsp.server
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Result(
+data class SolverResult(
     val legs: List<Leg>,
+    val stations: List<Station>
+)
+
+@Serializable
+data class SearchResult(
     val stations: List<Station>
 )
 
@@ -27,4 +32,9 @@ data class Station(
 @Serializable
 data class SolverRequest(
     val stationsIds: List<String>
+)
+
+@Serializable
+data class SearchRequest(
+    val searchTerm: String
 )

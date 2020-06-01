@@ -67,12 +67,14 @@ class Database {
         longitude: Double,
         type: String?
     ): Station = dbquery {
-        Station.new(apiId) {
-            this.name = name
-            this.latitude = latitude
-            this.longitude = longitude
-            this.type = type
+        Stations.insertIgnore {
+            it[Stations.id] = EntityID(apiId, Stations)
+            it[Stations.name] = name
+            it[Stations.latitude] = latitude
+            it[Stations.longitude] = longitude
+            it[Stations.type] = type
         }
+        Station[apiId]
     }
 }
 

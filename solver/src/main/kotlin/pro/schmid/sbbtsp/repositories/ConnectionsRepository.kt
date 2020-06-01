@@ -81,6 +81,22 @@ class ConnectionsRepository(
         val allStations = existingStations + newStations
         return allStations.map { it.toRepoModel() }
     }
+
+    suspend fun searchStation(term: String): List<Station> {
+        val apiResult = api.downloadLocations(term)
+
+        val newStations = apiResult.map {
+            database.createStation(
+                it.id,
+                it.name,
+                it.coordinate.x,
+                it.coordinate.y,
+                it.icon
+            )
+        }
+
+        return newStations.map { it.toRepoModel() }
+    }
 }
 
 private fun <T : Comparable<T>> List<T>.median() = this.sorted().let { it[it.size / 2] }
