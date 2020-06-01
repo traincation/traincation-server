@@ -31,4 +31,15 @@ class TransportApi {
 
         return response.connections
     }
+
+    suspend fun downloadLocations(query: String): List<Station> {
+        val response: LocationsResponse = client.get("http://transport.opendata.ch/v1/locations") {
+            url {
+                parameters["query"] = query
+                parameters["type"] = "station"
+            }
+        }
+
+        return response.stations
+    }
 }

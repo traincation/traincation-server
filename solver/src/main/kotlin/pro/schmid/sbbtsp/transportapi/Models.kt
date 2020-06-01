@@ -4,10 +4,12 @@ import kotlinx.serialization.*
 
 @Serializable
 data class ConnectionsResponse(
-    val connections: List<Connection>,
-    val from: Location,
-    val to: Location,
-    val stations: Stations
+    val connections: List<Connection>
+)
+
+@Serializable
+data class LocationsResponse(
+    val stations: List<Station>
 )
 
 @Serializable
@@ -19,7 +21,7 @@ data class Connection(
 
 @Serializable
 data class Checkpoint(
-    val station: Location,
+    val station: Station,
     val arrival: String? = null,
     val arrivalTimestamp: Long? = null,
     val departure: String? = null,
@@ -27,10 +29,11 @@ data class Checkpoint(
 )
 
 @Serializable
-data class Location(
+data class Station(
     val id: String,
     val name: String,
-    val coordinate: Coordinates
+    val coordinate: Coordinates,
+    val icon: String? = null
 )
 
 @Serializable
@@ -63,6 +66,6 @@ enum class Type(val value: String) {
 
 @Serializable
 data class Stations(
-    val from: List<Location>,
-    val to: List<Location>
+    val from: List<Station>,
+    val to: List<Station>
 )

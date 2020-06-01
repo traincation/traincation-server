@@ -1,9 +1,7 @@
 package pro.schmid.sbbtsp.repositories
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
-import pro.schmid.sbbtsp.db.Connection
 import pro.schmid.sbbtsp.db.Database
 import pro.schmid.sbbtsp.transportapi.TransportApi
 
@@ -13,13 +11,13 @@ class ConnectionsRepository(
     private val database: Database = Database(),
     private val api: TransportApi = TransportApi()
 ) {
-    private val logger = LoggerFactory.getLogger("chapters.introduction.HelloWorld2");
+    private val logger = LoggerFactory.getLogger("ConnectionsRepository");
 
-    suspend fun fetch(from: String, to: String): Connection = withContext(Dispatchers.IO) {
+    suspend fun fetchConnections(from: String, to: String): Connection = withContext(Dispatchers.IO) {
         logger.debug("($from, $to): Fetching...")
-        database.get(from, to)?.let {
+        database.getConnection(from, to)?.let {
             logger.debug("($from, $to): Found from DB")
-            return@withContext it
+            return@withContext it.toRepoModel()
         }
 
         logger.debug("($from, $to): Downloading...")
@@ -41,13 +39,47 @@ class ConnectionsRepository(
             return@mapNotNull totalMinutes
         }.sorted()
 
-        val fromNetwork = database.create(
+        val fromNetwork = database.createConnection(
             from,
             to,
             allTimes.first(),
             allTimes.median()
         )
-        return@withContext fromNetwork
+        return@withContext fromNetwork.toRepoModel()
+    }
+
+    suspend fun fetchStations(stationsIds: List<String>): List<Station> {
+
+        val existingStations = database.getExistingStations(stationsIds)
+        val existingIds = existingStations.map { it.id.value }
+        val missingIds = stationsIds.subtract(existingIds)
+
+        val allStationsJobs = coroutineScope {
+            missingIds.map { stationId ->
+                async {
+                    api.downloadLocations(stationId)
+                }
+            }
+        }
+
+        val distinctStations = allStationsJobs
+            .awaitAll()
+            .flatten()
+            .distinctBy { it.id }
+
+        // Create all missing stations
+        val newStations = distinctStations.map {
+            database.createStation(
+                it.id,
+                it.name,
+                it.coordinate.x,
+                it.coordinate.y,
+                it.icon
+            )
+        }
+
+        val allStations = existingStations + newStations
+        return allStations.map { it.toRepoModel() }
     }
 }
 
