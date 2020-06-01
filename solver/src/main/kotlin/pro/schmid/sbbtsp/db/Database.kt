@@ -45,7 +45,6 @@ class Database {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.drop(Connections, Stations)
             SchemaUtils.create(Connections, Stations)
         }
     }

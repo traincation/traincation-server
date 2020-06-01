@@ -11,7 +11,7 @@ object Connections : IntIdTable() {
     val lastDownload = long("lastDownload")
 
     init {
-        index(true, fromStation, toStation)
+        uniqueIndex(fromStation, toStation)
     }
 }
 
