@@ -1,6 +1,7 @@
 val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
+val exposed_version: String by project
 
 plugins {
     kotlin("jvm")
@@ -23,9 +24,9 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
 
-    implementation("org.jetbrains.exposed", "exposed-core", "0.24.1")
-    implementation("org.jetbrains.exposed", "exposed-dao", "0.24.1")
-    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.24.1")
+    implementation("org.jetbrains.exposed", "exposed-core", exposed_version)
+    implementation("org.jetbrains.exposed", "exposed-dao", exposed_version)
+    implementation("org.jetbrains.exposed", "exposed-jdbc", exposed_version)
     implementation("org.postgresql:postgresql:42.2.2")
     implementation("com.zaxxer:HikariCP:2.7.8")
 }
