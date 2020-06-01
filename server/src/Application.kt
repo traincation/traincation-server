@@ -64,7 +64,7 @@ fun Application.module(testing: Boolean = false) {
                 val repoStations = client.findStations(stationsIds)
                 val route = client.solve(stationsIds)
 
-                val stations = repoStations.map { Station(it.apiId, it.name, it.latitude, it.longitude, it.type) }
+                val stations = repoStations.map { Station(it.id, it.name, it.latitude, it.longitude, it.type) }
                 val legs = route.map { Leg(stationsIds[it.from], stationsIds[it.to], it.durationMinutes) }
                 val result = SolverResult(legs, stations)
 
@@ -75,7 +75,7 @@ fun Application.module(testing: Boolean = false) {
                 val request = call.receive<SearchRequest>()
                 val term = request.searchTerm
                 val repoStations = client.search(term)
-                val stations = repoStations.map { Station(it.apiId, it.name, it.latitude, it.longitude, it.type) }
+                val stations = repoStations.map { Station(it.id, it.name, it.latitude, it.longitude, it.type) }
                 val result = SearchResult(stations)
 
                 call.respond(result)

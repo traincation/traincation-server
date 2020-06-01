@@ -51,7 +51,7 @@ class ConnectionsRepository(
     suspend fun fetchStations(stationsIds: List<String>): List<Station> {
 
         val existingStations = database.getExistingStations(stationsIds)
-        val existingIds = existingStations.map { it.apiId }
+        val existingIds = existingStations.map { it.id }
         val missingIds = stationsIds.subtract(existingIds)
 
         val allStationsJobs = coroutineScope {

@@ -70,7 +70,7 @@ private suspend fun doSolve(client: Client) {
     )
 
     val stations = client.findStations(stationsIds)
-    val stationById = stations.associateBy { it.apiId }
+    val stationById = stations.associateBy { it.id }
     val stationsPrint = stationById.map { "${it.key}: ${it.value.name}" }
     println(stationsPrint)
 

@@ -8,7 +8,7 @@ class Connection(
 )
 
 data class Station(
-    val apiId: String,
+    val id: String,
     val name: String,
     val latitude: Double,
     val longitude: Double,
