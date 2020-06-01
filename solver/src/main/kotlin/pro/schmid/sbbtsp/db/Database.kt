@@ -3,6 +3,7 @@ package pro.schmid.sbbtsp.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
@@ -34,7 +35,8 @@ class Database {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.createMissingTablesAndColumns(Connections, Stations)
+            SchemaUtils.drop(Connections, Stations)
+            SchemaUtils.create(Connections, Stations)
         }
     }
 
@@ -46,8 +48,8 @@ class Database {
 
     suspend fun createConnection(from: String, to: String, min: Int, median: Int): Connection = dbquery {
         Connection.new {
-            fromStation = from
-            toStation = to
+            fromStationId = EntityID(from, Stations)
+            toStationId = EntityID(to, Stations)
             minDuration = min
             medianDuration = median
             lastDownload = Instant.now().epochSecond
@@ -55,7 +57,7 @@ class Database {
     }
 
     suspend fun getExistingStations(stationsIds: List<String>): List<Station> = dbquery {
-        Station.find { Stations.apiId inList stationsIds }.toList()
+        Station.find { Stations.id inList stationsIds }.toList()
     }
 
     suspend fun createStation(
@@ -65,8 +67,7 @@ class Database {
         longitude: Double,
         type: String?
     ): Station = dbquery {
-        Station.new {
-            this.apiId = apiId
+        Station.new(apiId) {
             this.name = name
             this.latitude = latitude
             this.longitude = longitude

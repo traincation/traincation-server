@@ -8,8 +8,8 @@ class Connection(
 )
 
 fun pro.schmid.sbbtsp.db.Connection.toRepoModel() = Connection(
-    this.fromStation,
-    this.toStation,
+    this.fromStationId.value,
+    this.toStationId.value,
     this.minDuration,
     this.medianDuration
 )
@@ -23,7 +23,7 @@ data class Station(
 )
 
 fun pro.schmid.sbbtsp.db.Station.toRepoModel() = Station(
-    this.apiId,
+    this.id.value,
     this.name,
     this.latitude,
     this.longitude,
