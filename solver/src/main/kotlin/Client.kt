@@ -49,24 +49,20 @@ suspend fun main() {
 
     val client = Client()
 
-    //doSolve(client)
-    search(client)
+    doSolve(client)
+    //search(client)
 }
 
 private suspend fun doSolve(client: Client) {
     val stationsIds = listOf(
         "8504200", // Yverdon
-        "8577453", // Stoosbahn
         "8509262", // Zernez
         "8505226", // Grindelwald
-        "8500010", // Bâle
-        "8507475", // Kandersteg
-        "8501689", // Zermatt
-        "8505000", // Lucerne
-        "8501008", // Genève
-        "8506302", // St-Gallen
+        "8509000", // Chur
+        "8509253", // St Moritz
+        "8505165", // Andermatt
         "8503000", // Zurich
-        "8501120"  // Lausanne
+        "8507475" // Kandersteg
     )
 
     val stations = client.findStations(stationsIds)
