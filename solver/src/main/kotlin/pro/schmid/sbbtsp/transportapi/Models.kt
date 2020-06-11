@@ -30,7 +30,7 @@ data class Checkpoint(
 
 @Serializable
 data class Station(
-    val id: String,
+    val id: String? = null,
     val name: String,
     val coordinate: Coordinates,
     val icon: String? = null
@@ -39,8 +39,8 @@ data class Station(
 @Serializable
 data class Coordinates(
     val type: Type,
-    val x: Double,
-    val y: Double
+    val x: Double? = null,
+    val y: Double? = null
 )
 
 @Serializable(with = Type.Companion::class)

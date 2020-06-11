@@ -49,8 +49,8 @@ suspend fun main() {
 
     val client = Client()
 
-    doSolve(client)
-    //search(client)
+    //doSolve(client)
+    search(client)
 }
 
 private suspend fun doSolve(client: Client) {
@@ -86,9 +86,6 @@ private suspend fun doSolve(client: Client) {
 }
 
 private suspend fun search(client: Client) {
-    val stationsYverdon = client.search("Yverdon")
+    val stationsYverdon = client.search("Vuadens")
     stationsYverdon.forEach { println(it) }
-
-    val stationsLausanne = client.search("Lausanne")
-    stationsLausanne.forEach { println(it) }
 }

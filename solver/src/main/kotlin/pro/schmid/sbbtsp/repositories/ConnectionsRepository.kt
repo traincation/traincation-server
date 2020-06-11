@@ -68,15 +68,7 @@ class ConnectionsRepository(
             .distinctBy { it.id }
 
         // Create all missing stations
-        val newStations = distinctStations.map {
-            database.createStation(
-                it.id,
-                it.name,
-                it.coordinate.x,
-                it.coordinate.y,
-                it.icon
-            )
-        }
+        val newStations = distinctStations.mapNotNull { createStation(it) }
 
         return existingStations + newStations
     }
@@ -84,15 +76,21 @@ class ConnectionsRepository(
     suspend fun searchStation(term: String): List<Station> {
         val apiResult = api.downloadLocations(term)
 
-        return apiResult.map {
-            database.createStation(
-                it.id,
-                it.name,
-                it.coordinate.x,
-                it.coordinate.y,
-                it.icon
-            )
-        }
+        return apiResult.mapNotNull { createStation(it) }
+    }
+
+    private suspend fun createStation(apiStation: pro.schmid.sbbtsp.transportapi.Station): Station? {
+        val stationId = apiStation.id ?: return null
+        val x = apiStation.coordinate.x ?: return null
+        val y = apiStation.coordinate.y ?: return null
+
+        return database.createStation(
+            stationId,
+            apiStation.name,
+            x,
+            y,
+            apiStation.icon
+        )
     }
 }
 
