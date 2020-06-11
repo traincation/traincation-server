@@ -49,8 +49,8 @@ suspend fun main() {
 
     val client = Client()
 
-    //doSolve(client)
-    search(client)
+    doSolve(client)
+    //search(client)
 }
 
 private suspend fun doSolve(client: Client) {

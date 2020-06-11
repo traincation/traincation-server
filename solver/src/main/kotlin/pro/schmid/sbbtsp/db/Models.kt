@@ -9,6 +9,7 @@ object Connections : IntIdTable() {
     val minDuration = integer("minDuration")
     val medianDuration = integer("medianDuration")
     val lastDownload = long("lastDownload")
+    val journey = varchar("journey", 500)
 
     init {
         uniqueIndex(fromStation, toStation)

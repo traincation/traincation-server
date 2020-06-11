@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
 import pro.schmid.sbbtsp.db.Connections.fromStation
+import pro.schmid.sbbtsp.db.Connections.journey
 import pro.schmid.sbbtsp.db.Connections.medianDuration
 import pro.schmid.sbbtsp.db.Connections.minDuration
 import pro.schmid.sbbtsp.db.Connections.toStation
@@ -59,24 +60,27 @@ class Database {
                 it[fromStation].value,
                 it[toStation].value,
                 it[minDuration],
-                it[medianDuration]
+                it[medianDuration],
+                row[journey].split(",")
             )
         }
     }
 
-    suspend fun createConnection(from: String, to: String, min: Int, median: Int) = dbquery {
+    suspend fun createConnection(from: String, to: String, min: Int, median: Int, journeyList: List<String>) = dbquery {
         val row = Connections.insertIgnore {
             it[fromStation] = EntityID(from, Stations)
             it[toStation] = EntityID(to, Stations)
             it[minDuration] = min
             it[medianDuration] = median
             it[lastDownload] = Instant.now().epochSecond
+            it[journey] = journeyList.joinToString(",")
         }
         return@dbquery Connection(
             row[fromStation].value,
             row[toStation].value,
             row[minDuration],
-            row[medianDuration]
+            row[medianDuration],
+            row[journey].split(",")
         )
     }
 

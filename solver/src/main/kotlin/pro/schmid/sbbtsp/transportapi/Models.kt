@@ -16,7 +16,8 @@ data class LocationsResponse(
 data class Connection(
     val from: Checkpoint,
     val to: Checkpoint,
-    val duration: String
+    val duration: String,
+    val sections: List<Section>
 )
 
 @Serializable
@@ -41,6 +42,23 @@ data class Coordinates(
     val type: Type,
     val x: Double? = null,
     val y: Double? = null
+)
+
+@Serializable
+data class Section(
+    val journey: Journey?,
+    val departure: PassListElement,
+    val arrival: PassListElement
+)
+
+@Serializable
+data class Journey(
+    val passList: List<PassListElement>
+)
+
+@Serializable
+data class PassListElement(
+    val station: Station
 )
 
 @Serializable(with = Type.Companion::class)
