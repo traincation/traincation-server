@@ -9,9 +9,9 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
 import pro.schmid.sbbtsp.db.Connections.fromStation
-import pro.schmid.sbbtsp.db.Connections.journey
 import pro.schmid.sbbtsp.db.Connections.medianDuration
 import pro.schmid.sbbtsp.db.Connections.minDuration
+import pro.schmid.sbbtsp.db.Connections.stationsList
 import pro.schmid.sbbtsp.db.Connections.toStation
 import pro.schmid.sbbtsp.db.Stations.latitude
 import pro.schmid.sbbtsp.db.Stations.longitude
@@ -61,28 +61,29 @@ class Database {
                 it[toStation].value,
                 it[minDuration],
                 it[medianDuration],
-                row[journey].split(",")
+                row[stationsList].split(",")
             )
         }
     }
 
-    suspend fun createConnection(from: String, to: String, min: Int, median: Int, journeyList: List<String>) = dbquery {
-        val row = Connections.insertIgnore {
-            it[fromStation] = EntityID(from, Stations)
-            it[toStation] = EntityID(to, Stations)
-            it[minDuration] = min
-            it[medianDuration] = median
-            it[lastDownload] = Instant.now().epochSecond
-            it[journey] = journeyList.joinToString(",")
+    suspend fun createConnection(from: String, to: String, min: Int, median: Int, stationsList: List<String>) =
+        dbquery {
+            val row = Connections.insertIgnore {
+                it[fromStation] = EntityID(from, Stations)
+                it[toStation] = EntityID(to, Stations)
+                it[minDuration] = min
+                it[medianDuration] = median
+                it[lastDownload] = Instant.now().epochSecond
+                it[this.stationsList] = stationsList.joinToString(",")
+            }
+            return@dbquery Connection(
+                row[fromStation].value,
+                row[toStation].value,
+                row[minDuration],
+                row[medianDuration],
+                row[Connections.stationsList].split(",")
+            )
         }
-        return@dbquery Connection(
-            row[fromStation].value,
-            row[toStation].value,
-            row[minDuration],
-            row[medianDuration],
-            row[journey].split(",")
-        )
-    }
 
     suspend fun getExistingStations(stationsIds: List<String>): List<Station> = dbquery {
         Stations
