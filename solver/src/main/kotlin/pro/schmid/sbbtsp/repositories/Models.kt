@@ -1,10 +1,11 @@
 package pro.schmid.sbbtsp.repositories
 
-class Connection(
+data class Connection(
     val fromStation: String,
     val toStation: String,
     val minDuration: Int,
-    val medianDuration: Int
+    val medianDuration: Int,
+    val journey: List<String>
 )
 
 data class Station(

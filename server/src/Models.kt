@@ -17,7 +17,8 @@ data class SearchResult(
 data class Leg(
     val from: String,
     val to: String,
-    val durationMinutes: Long
+    val durationMinutes: Long,
+    val stationsList: List<String>
 )
 
 @Serializable

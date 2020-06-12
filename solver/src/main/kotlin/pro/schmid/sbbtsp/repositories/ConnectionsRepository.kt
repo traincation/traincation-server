@@ -39,11 +39,31 @@ class ConnectionsRepository(
             return@mapNotNull totalMinutes
         }.sorted()
 
+        val firstConnectionSections = allConnections.first().sections
+        val firstConnectionPassList = firstConnectionSections.map { section ->
+            // If there is a journey, take it, otherwise create a one-stop from departure to arrival
+            if (section.journey != null) {
+                section.journey.passList.map { it.station }
+            } else {
+                listOf(section.departure.station, section.arrival.station)
+            }
+        }
+        val firstSection = firstConnectionPassList.first()
+        val remainingSections = firstConnectionPassList.drop(1)
+        val remainingWithoutStart = remainingSections.map { it.drop(1) }
+        val allStations = firstSection + remainingWithoutStart.flatten()
+        val allStationsIds = allStations.mapNotNull { it.id }
+
+        allStations.forEach {
+            createStation(it)
+        }
+        
         val fromNetwork = database.createConnection(
             from,
             to,
             allTimes.first(),
-            allTimes.median()
+            allTimes.median(),
+            allStationsIds
         )
         return@withContext fromNetwork
     }
