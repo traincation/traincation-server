@@ -53,6 +53,10 @@ class ConnectionsRepository(
         val remainingWithoutStart = remainingSections.map { it.drop(1) }
         val allStations = firstSection + remainingWithoutStart.flatten()
         val allStationsIds = allStations.mapNotNull { it.id }
+
+        allStations.forEach {
+            createStation(it)
+        }
         
         val fromNetwork = database.createConnection(
             from,

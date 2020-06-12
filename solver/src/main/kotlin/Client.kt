@@ -2,6 +2,7 @@ package pro.schmid.sbbtsp
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import pro.schmid.sbbtsp.repositories.Connection
 import pro.schmid.sbbtsp.repositories.ConnectionsRepository
 import pro.schmid.sbbtsp.repositories.Station
 import pro.schmid.sbbtsp.solver.Leg
@@ -19,7 +20,7 @@ class Client {
     suspend fun solve(stations: List<String>): List<Leg> {
 
         val allConnections = coroutineScope {
-            val arrayOfArray = Array(stations.size) { DoubleArray(stations.size) { 0.0 } }
+            val arrayOfArray = Array(stations.size) { Array<Connection?>(stations.size) { null } }
 
             for (from in arrayOfArray.indices) {
                 for (to in arrayOfArray.indices) {
@@ -29,7 +30,7 @@ class Client {
                         val fromId = stations[from]
                         val toId = stations[to]
                         val connection = repository.fetchConnections(fromId, toId)
-                        arrayOfArray[from][to] = connection.minDuration.toDouble()
+                        arrayOfArray[from][to] = connection
                     }
                 }
             }
@@ -56,28 +57,38 @@ suspend fun main() {
 private suspend fun doSolve(client: Client) {
     val stationsIds = listOf(
         "8504200", // Yverdon
-        "8509262", // Zernez
-        "8505226", // Grindelwald
+        //"8509262", // Zernez
+        //"8505226", // Grindelwald
         "8509000", // Chur
-        "8509253", // St Moritz
-        "8505165", // Andermatt
-        "8503000", // Zurich
+        //"8509253", // St Moritz
+        //"8505165", // Andermatt
+        //"8503000", // Zurich
         "8507475" // Kandersteg
     )
 
     val stations = client.findStations(stationsIds)
-    val stationById = stations.associateBy { it.id }
-    val stationsPrint = stationById.map { "${it.key}: ${it.value.name}" }
+    val stationsPrint = stations.map { "${it.id}: ${it.name}" }
     println(stationsPrint)
 
     val route = client.solve(stationsIds)
+
+    val allStationsIds = route.flatMap { it.stationsList }.toSet().toList()
+    val stationById = client.findStations(allStationsIds).associateBy { it.id }
+
     val result = buildString {
-        route.forEach {
-            val fromApiId = stationsIds[it.from]
-            val toApiId = stationsIds[it.to]
-            val from = stationById[fromApiId]!!
-            val to = stationById[toApiId]!!
-            appendln("From ${from.name} to ${to.name}: ${it.durationMinutes} minutes")
+        route.forEach { leg ->
+            val fromApiId = stationsIds[leg.from]
+            val toApiId = stationsIds[leg.to]
+            val fromStation = stationById[fromApiId]!!
+            val toStation = stationById[toApiId]!!
+            val durationMinutes = leg.durationMinutes
+            append("From ${fromStation.name} to ${toStation.name}: $durationMinutes minutes")
+
+            append(" / ")
+
+            val allStations = leg.stationsList.mapNotNull { stationById[it] }.map { it.name }.joinToString(", ")
+            append(allStations)
+            appendln()
         }
         val totalTime = route.map { it.durationMinutes }.sum()
         appendln("Total time: $totalTime minutes")
