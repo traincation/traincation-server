@@ -60,11 +60,12 @@ private suspend fun doSolve(client: Client) {
         "8504200", // Yverdon
         //"8509262", // Zernez
         //"8505226", // Grindelwald
-        "8509000", // Chur
+        //"8509000", // Chur
         //"8509253", // St Moritz
         //"8505165", // Andermatt
         //"8503000", // Zurich
         "8577737", // Gruyères, gare
+        "8509778", // Il Fuorn P6
         "8507475" // Kandersteg
     )
 

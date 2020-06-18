@@ -5,7 +5,7 @@ import pro.schmid.sbbtsp.repositories.Connection
 
 class Solver {
     fun solve(connections: Array<Array<Connection?>>): List<Leg> {
-        val data = connections.map { it.map { it?.minDuration?.toDouble() ?: 0.0 }.toDoubleArray() }.toTypedArray()
+        val data = connections.map { it.map { it?.minDuration?.toDouble() ?: 9999.0 }.toDoubleArray() }.toTypedArray()
         val tspSolver = TspDynamicProgrammingIterative(data)
         val route = tspSolver.tour
 
