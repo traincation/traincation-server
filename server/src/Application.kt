@@ -21,6 +21,7 @@ import pro.schmid.sbbtsp.Client
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
+@OptIn(ExperimentalStdlibApi::class)
 @Suppress("unused") // Referenced in application.conf
 @JvmOverloads
 fun Application.module(testing: Boolean = false) {
@@ -63,9 +64,13 @@ fun Application.module(testing: Boolean = false) {
                 val requestStationsIds = request.stationsIds
                 val route = client.solve(requestStationsIds)
 
-                val allStationsIds = route.flatMap { it.stationsList }.toSet().toList()
+                val allStationsIds = buildSet {
+                    addAll(requestStationsIds)
+                    val stationsListIds = route.flatMap { it.stationsList }
+                    addAll(stationsListIds)
+                }.toList()
                 val requestedStations = client.findStations(allStationsIds)
-                
+
                 val stations = requestedStations.map { Station(it.id, it.name, it.latitude, it.longitude, it.type) }
                 val legs = route.map { leg ->
                     Leg(

@@ -54,6 +54,7 @@ suspend fun main() {
     //search(client)
 }
 
+@OptIn(ExperimentalStdlibApi::class)
 private suspend fun doSolve(client: Client) {
     val stationsIds = listOf(
         "8504200", // Yverdon
@@ -63,6 +64,7 @@ private suspend fun doSolve(client: Client) {
         //"8509253", // St Moritz
         //"8505165", // Andermatt
         //"8503000", // Zurich
+        "8577737", // Gruyères, gare
         "8507475" // Kandersteg
     )
 
@@ -72,7 +74,11 @@ private suspend fun doSolve(client: Client) {
 
     val route = client.solve(stationsIds)
 
-    val allStationsIds = route.flatMap { it.stationsList }.toSet().toList()
+    val allStationsIds = buildSet {
+        addAll(stationsIds)
+        val stationsListIds = route.flatMap { it.stationsList }
+        addAll(stationsListIds)
+    }.toList()
     val stationById = client.findStations(allStationsIds).associateBy { it.id }
 
     val result = buildString {
