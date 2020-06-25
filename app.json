@@ -2,8 +2,5 @@
   "name": "SBB TSP",
   "description": "Computing the shortest path between SBB stations",
   "image": "heroku/java",
-  "addons": [ "heroku-postgresql" ],
-  "env": {
-    "GRADLE_TASK": ":server:shadowJar"
-  }
+  "addons": [ "heroku-postgresql" ]
 }
