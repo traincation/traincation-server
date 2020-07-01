@@ -94,6 +94,10 @@ fun Application.module(testing: Boolean = false) {
 
                 call.respond(result)
             }
+
+            post("/ping") {
+                call.respond("pong")
+            }
         }
     }
 }
