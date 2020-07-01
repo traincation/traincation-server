@@ -88,7 +88,11 @@ fun Application.module(testing: Boolean = false) {
             post("/search") {
                 val request = call.receive<SearchRequest>()
                 val term = request.searchTerm
-                val repoStations = client.search(term)
+                val repoStations = if (!term.isBlank()) {
+                    client.search(term)
+                } else {
+                    client.findStations(listOf("8503000", "8507492", "8505000", "8501689", "8509253", "8501008"))
+                }
                 val stations = repoStations.map { Station(it.id, it.name, it.latitude, it.longitude, it.type) }
                 val result = SearchResult(stations)
 
