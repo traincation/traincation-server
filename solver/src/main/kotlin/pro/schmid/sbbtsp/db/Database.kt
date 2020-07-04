@@ -46,7 +46,7 @@ class Database {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(Connections, Stations)
+            SchemaUtils.createMissingTablesAndColumns(Connections, Stations)
         }
     }
 
