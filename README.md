@@ -1,6 +1,8 @@
-# sbb-tsp
+# Traincation server
 
-## Run
+See [website](https://traincation.schmid.pro/) and [app](https://github.com/traincation/traincation).
+
+## Development
 
 ```bash
 docker-compose up
