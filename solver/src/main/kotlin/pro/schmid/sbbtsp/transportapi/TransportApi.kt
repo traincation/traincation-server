@@ -16,6 +16,9 @@ class TransportApi {
             }
             serializer = KotlinxSerializer(json)
         }
+        engine {
+            requestTimeout = 30000
+        }
     }
 
     suspend fun downloadConnections(from: String, to: String): List<Connection> {
