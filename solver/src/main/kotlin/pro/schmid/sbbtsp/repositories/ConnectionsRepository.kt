@@ -1,5 +1,6 @@
 package pro.schmid.sbbtsp.repositories
 
+import io.ktor.util.error
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import pro.schmid.sbbtsp.db.Database
@@ -21,7 +22,12 @@ class ConnectionsRepository(
         }
 
         logger.debug("($from, $to): Downloading...")
-        val allConnections = api.downloadConnections(from, to)
+        val allConnections = try {
+            api.downloadConnections(from, to)
+        } catch (e: Exception) {
+            logger.error(e)
+            throw e
+        }
         logger.debug("($from, $to): Downloaded")
 
         val allTimes = allConnections.mapNotNull {
@@ -57,7 +63,7 @@ class ConnectionsRepository(
         allStations.forEach {
             createStation(it)
         }
-        
+
         val fromNetwork = database.createConnection(
             from,
             to,
