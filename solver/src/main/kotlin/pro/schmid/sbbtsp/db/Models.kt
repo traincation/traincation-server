@@ -17,7 +17,7 @@ object Connections : IntIdTable() {
 }
 
 object Stations : IdTable<String>() {
-    override val id = varchar("id", 9).uniqueIndex().entityId()
+    override val id = varchar("id", 9).entityId()
     val name = varchar("name", 100)
     val latitude = double("latitude")
     val longitude = double("longitude")
