@@ -26,7 +26,7 @@ class TransportApi {
             url {
                 parameters["from"] = from
                 parameters["to"] = to
-                parameters["date"] = "2020-07-01"
+                parameters["date"] = "2020-12-30"
                 parameters["time"] = "07:00"
                 parameters["limit"] = "16"
             }
